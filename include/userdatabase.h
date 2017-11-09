@@ -10,6 +10,8 @@
  * created: NOV 2017
  **/
 
+#pragma once
+
 #include <fstream>  // std::fstream
 #include <map>      // std::map
 #include <string>   // std::string, std::getline
