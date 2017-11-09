@@ -13,11 +13,11 @@
 PROGS = bin/server bin/client
 LIBS  = lib/libuserdatabase.a
 
-CXX		  = g++
+CXX       = g++
 CXX_FLAGS = -Wall -ggdb -O0 -std=gnu++11 -I./include
-LD		  = g++
+LD        = g++
 LD_FLAGS  = -L./lib -luserdatabase
-AR		  = ar
+AR        = ar
 AR_FLAGS  = rvs
 
 all: $(PROGS)
