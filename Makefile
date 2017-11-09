@@ -20,10 +20,10 @@ LD_FLAGS  = -L./lib -luserdatabase
 AR		  = ar
 AR_FLAGS  = rvs
 
-all: $(LIBS) $(PROGS)
+all: $(PROGS)
 
 
-bin/%: src/%.o
+bin/%: src/%.o $(LIBS)
 	@test -d bin || mkdir bin
 	$(LD) $< -o $@ $(LD_FLAGS)
 
