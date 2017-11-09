@@ -1,3 +1,7 @@
+# Compiled binaries and libraries
+bin/
+lib/
+
 # Prerequisites
 *.d
 
