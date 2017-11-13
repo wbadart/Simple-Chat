@@ -14,13 +14,8 @@
 
 #include <fstream>  // std::fstream
 #include <map>      // std::map
+#include <set>      // std::set
 #include <string>   // std::string, std::getline
-
-
-struct User {
-    std::string username;
-    std::string password;
-};
 
 
 class UserDatabase {
@@ -35,10 +30,27 @@ class UserDatabase {
     bool add_user(
         const std::string& username, const std::string& password);
 
-    // Lookup a record by username
-    User query(const std::string& username) const;
+    // Lookup a password by username
+    std::string query(const std::string& username) const;
+
+    // Authenticate user and record online status
+    bool login(
+        const std::string& username, const std::string& password);
+
+    // Take a user offline
+    void logout(const std::string& username);
 
   private:
+    // Report whether the provided credentials match DB
+    bool _authenticate(
+        const std::string& username, const std::string& password) const;
+
+    // Report whether a username is valid
+    bool _valid_username(const std::string& username);
+
+    // Report whether a username is valid
+    bool _valid_password(const std::string& password);
+
     // Hold the path to the data file
     std::string m_path;
 
@@ -46,5 +58,8 @@ class UserDatabase {
     std::fstream m_datafs;
 
     // Cache query results (map usernames to User)
-    std::map<std::string, User> m_cache;
+    std::map<std::string, std::string> m_cache;
+
+    // Store all currently authenticated users
+    std::set<std::string> m_online;
 };
