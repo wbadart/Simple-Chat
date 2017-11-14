@@ -121,6 +121,8 @@ int private_message(int socket_fd) {
 	std::cin >> username;
 	_write(socket_fd, username, "Failed to send username");
 
+	// wait for response?
+
 	std::cout << std::endl << "Enter Message >> ";
 	std::cin >> msg_buffer;
 	_write(socket_fd, msg_buffer, "Failed to send message");

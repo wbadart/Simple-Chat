@@ -22,7 +22,7 @@ UserDatabase::UserDatabase(const std::string& path)
 
         const std::string::size_type delim_pos = user.find("|");
         const std::string
-            username = user.substr(0, delim_pos),
+            username = user.substr(0, delim_pos), 
             password = user.substr(delim_pos + 1, std::string::npos);
 
         m_cache.emplace(username, password);
