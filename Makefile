@@ -23,9 +23,13 @@ AR_FLAGS  = rvs
 all: $(PROGS)
 
 
-bin/%: src/%.o $(LIBS)
+bin/client: src/client.o src/client_utils.o
 	@test -d bin || mkdir bin
-	$(LD) $< -o $@ $(LD_FLAGS)
+	$(LD) src/client.o src/client_utils.o -o bin/client
+
+bin/server: src/server.o $(LIBS)
+	@test -d bin || mkdir bin
+	$(LD) src/server.o -o bin/client $(LD_FLAGS)
 
 lib/%.a: src/%.o
 	@test -d lib || mkdir lib
