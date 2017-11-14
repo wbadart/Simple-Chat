@@ -29,7 +29,7 @@ bin/client: src/client.o src/client_utils.o
 
 bin/server: src/server.o $(LIBS)
 	@test -d bin || mkdir bin
-	$(LD) src/server.o -o bin/client $(LD_FLAGS)
+	$(LD) src/server.o $(LD_FLAGS) -o bin/server
 
 lib/%.a: src/%.o
 	@test -d lib || mkdir lib

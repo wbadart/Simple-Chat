@@ -16,8 +16,8 @@
 
 int main(int argc, char *argv[]) {
 	// check for correct number of args
-	if (argc != 3) {
-		return usage(1);
+	if (argc != 4) {
+ 		return usage(1);
 	}
 
 	// check if host/server exists
@@ -54,9 +54,35 @@ int main(int argc, char *argv[]) {
 		error(msg);
 	}
 
-	// send server username
-	_write(socket_fd, argv[3], "Failed to send username");
+	if (login(socket_fd, argv[3]) == 0) {
+		char msg[] = "Failed to login\n";
+		error(msg);
+	}
 
+	// start listening thread
+	pthread_t thread;
+	int rc = pthread_create(&thread, NULL, handle_message, (void*)socket_fd);
+
+	print_prompt(argv[3]);
+
+	char cmd[BUFSIZ];
+	while (true) {
+		std::cout << prompt;
+		std::cin >> cmd;
+
+		if (strcmp(cmd, "P") == 0) {
+			private_message(socket_fd);
+		} else if (strcmp(cmd, "B") == 0) {
+			broadcast_message(socket_fd);
+		} else if (strcmp(cmd, "E") == 0) {
+			pthread_join(thread, NULL);
+			break;
+		} else {
+			std::cout << "Invalid Command" << std::endl;
+		}
+	}
+
+	close(socket_fd);
 
     return EXIT_SUCCESS;
 }
