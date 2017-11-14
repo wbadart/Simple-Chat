@@ -19,7 +19,7 @@
 #include <sstream>      // sstream
 #include <sys/time.h>   // gettimeofday
 #include <iostream>     // cout
-
+#include <string.h>     // strcmp
 
 int usage(int status);
 
@@ -27,4 +27,14 @@ int _write(int socket_fd, char* message, char error_msg[]);
 
 int _read(int socket_fd, char* message, char error_msg[BUFSIZ]);
 
-void error(char *fmt, ...);
+void error(char* fmt, ...);
+
+int login(int socket_fd, char* user_name);
+
+void* handle_message(void*);
+
+int private_message(int);
+
+int broadcast_message(int);
+
+void print_prompt(char*);
