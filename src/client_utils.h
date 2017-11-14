@@ -20,12 +20,9 @@
 #include <sys/time.h>   // gettimeofday
 #include <iostream>     // cout
 #include <string.h>     // strcmp
+#include "util.h"
 
 int usage(int status);
-
-int _write(int socket_fd, char* message, char error_msg[]);
-
-int _read(int socket_fd, char* message, char error_msg[BUFSIZ]);
 
 void error(char* fmt, ...);
 

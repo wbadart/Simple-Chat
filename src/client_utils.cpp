@@ -11,6 +11,7 @@
  **/
 
 #include "client_utils.h"
+#include "utils.h"
 
 int usage(int status) {
     std::cout
@@ -19,24 +20,6 @@ int usage(int status) {
         << "    PORT    Port on which myftpd is listening.\n"
         << "    USER    The name you want to be identified by.\n";
     return status;
-}
-
-int _write(int socket_fd, char* message, char error_msg[]) {
-    int bytes = write(socket_fd, message, strlen(message));
-	if (bytes == -1) {
-		error(error_msg);
-	}
-    return bytes;
-}
-
-int _read(int socket_fd, char* message, char error_msg[BUFSIZ]) {
-	bzero(message, BUFSIZ);
-    int bytes = read(socket_fd, message, BUFSIZ);
-	if (bytes == -1) {
-		error(error_msg);
-	}
-    message[bytes] = '\0';
-    return bytes;
 }
 
 void error(char *fmt, ...) {
@@ -57,7 +40,7 @@ int login(int socket_fd, char* username) {
 		
 	// send server username
 	_write(socket_fd, username, "Failed to send username");
-	std::cout << username << " hi" << std::endl;
+
 	// wait for confirmation
 	_read(socket_fd, msg_buffer, "Failed to receive confirmation");
 

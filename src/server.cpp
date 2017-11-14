@@ -15,18 +15,22 @@
 #include <stdio.h>
 #include <string.h>     //strlen
 #include <stdlib.h>     //strlen
+#include <netinet/in.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>  //inet_addr
 #include <unistd.h>     //write
 #include <pthread.h>    //for threading , link with lpthread
 
+#include "utils.h"
+
 // the thread function
-void *connection_handler(void *);
+//void *connection_handler(void *);
 
 int main(int argc, char *argv[]) {
-    UserDatabase db;
+    UserDatabase db("./users.db");
 
-    int socket_desc , client_socket, c;
+    int socket_desc, client_socket, c;
     struct sock_addr_in server, client;
 
     // Create socket
@@ -61,32 +65,33 @@ int main(int argc, char *argv[]) {
     c = sizeof(struct sockaddr_in);
     pthread_t thread_id;
 
-    while( (client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
+    while( (client_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c)) ){
         puts("Connection accepted");
 
         // authenticate user
-        char client_usrname[2000];
-        int read_size = recv(sock, client_message, 2000, 0);
-        if( read_size < 0){
-            perror("recv failed");
-            return 1;
-        }
+        char client_usrname[BUFSIZ];
+        _read(client_socket, client_usrname, "Failed to get username");
         
-        // don't think this is actually the best way to do it but example had it
-        // end of string marker
-        client_usrname[read_size] = '\0';
-        
-        char client_pass[2000];
-        int read_size = recv(sock, client_pass, 2000, 0);
-        if( db._valid_username(client_usrname)){
-            while( !db._authenticate(client_usrname, client_pass)){
+        char client_pass[BUFSIZ];
+        if( db._valid_username(client_usrname) && strcmp(db.query(client_usrname), "") != 0){
+        	// send response of Old/New
+        	_write(client_socket, "Old", "Failed to send response");
+        	// get password
+        	_read(client_socket, client_pass, "Failed to get password");
+            while(!db.login(client_usrname, client_pass)){
+	        	_write(client_socket, "Fail", "Failed to send response");
                 printf("wrong password");
-                read_size = recv(sock, client_pass, 2000, 0);
+                _read(client_socket, client_pass, "Failed to get password");
             }
+            // login successful
+        	_write(client_socket, "Success", "Failed to send response");
             printf("returning user signed in");
         } else {
-            if( db.add_user(client_usrname, client_pass)){
+        	_write(client_socket, "New", "Failed to send response");
+        	_read(client_socket, client_pass, "Failed to get new password");
+	        if(db.add_user(client_usrname, client_pass)){
                 printf("user created and signed in");
+                _write(client_socket, "Success", "Failed to send success message");
             } else {
                 perror("add_user failed");
                 return 1;
@@ -94,17 +99,17 @@ int main(int argc, char *argv[]) {
         }
         
 
-        if( pthread_create( &thread_id, NULL, connection_handler, (void*) &client_sock) < 0){
-            perror("could not create thread");
-            return 1;
-        }
+        // if( pthread_create( &thread_id, NULL, connection_handler, (void*) &client_socket) < 0){
+        //     perror("could not create thread");
+        //     return 1;
+        // }
 
         //Now join the thread, so that we don't terminate before the thread
         // pthread_join( thread_id, NULL);
         puts("Handler assigned");
     }
 
-    if ( client_sock < 0){
+    if ( client_socket < 0){
         perror("accept failed");
         return 1;
     }
@@ -115,6 +120,8 @@ int main(int argc, char *argv[]) {
 /*
  * This will handle connection for each client
  * */
+
+/*
 void *connection_handler(void *socket_desc){
     // Get the socket descriptor
     int sock  *(int*)socket_desc;
@@ -149,3 +156,4 @@ void *connection_handler(void *socket_desc){
 
     return 0;
 }
+*/
