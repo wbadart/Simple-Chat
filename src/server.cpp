@@ -128,9 +128,10 @@ void *connection_handler(void *socket_desc){
         // Send the message back to client
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
-
+        	// send back live users (from db class)
+        	// send message to correct socket
         } else if (strcmp(client_message, "B") == 0) {
-
+        	// send message to all other clients
         }
         // write(sock, client_message, strlen(client_message));
     }
