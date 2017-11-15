@@ -10,30 +10,8 @@
  * created: NOV 2017
  **/
 
-#include "client_utils.h"
 #include "utils.h"
-
-int usage(int status) {
-    std::cout
-        << "usage: ./client HOST PORT USER\n"
-        << "    HOST    Name of the remote host running myftpd\n"
-        << "    PORT    Port on which myftpd is listening.\n"
-        << "    USER    The name you want to be identified by.\n";
-    return status;
-}
-
-void error(char *fmt, ...) {
-    va_list args;
-    char msg[BUFSIZ], *prefix = "ERROR: ";
-    strcpy(msg, prefix);
-
-    va_start(args, fmt);
-    vsprintf(msg+strlen(prefix), fmt, args);
-    va_end(args);
-
-    perror(msg);
-    exit(EXIT_FAILURE);
-}
+#include "client_utils.h"
 
 int login(int socket_fd, char* username) {
 	char msg_buffer[BUFSIZ];
@@ -47,10 +25,10 @@ int login(int socket_fd, char* username) {
 	char password[BUFSIZ];
 	std::cout << msg_buffer << std::endl;
 
-	if (strcmp(msg_buffer, "New\n") == 0) {
+	if (strcmp(msg_buffer, "New") == 0) {
 		std::cout << "New User? Create Password >> ";
 		std::cin >> password;
-	} else if (strcmp(msg_buffer, "Old\n") == 0) {
+	} else if (strcmp(msg_buffer, "Old") == 0) {
 		std::cout << "Welcome Back! Enter Password >> ";
 		std::cin >> password;
 	} else {
@@ -61,9 +39,9 @@ int login(int socket_fd, char* username) {
 	// wait for confirmation fo password
 	_read(socket_fd, msg_buffer, "Could not read response from login");
 
-	if (strcmp(msg_buffer, "Success\n") == 0) {
+	if (strcmp(msg_buffer, "Success") == 0) {
 		return 1;
-	} else if (strcmp(msg_buffer, "Fail\n") == 0) {
+	} else if (strcmp(msg_buffer, "Fail") == 0) {
 		while (true) {
 			std::cout << "Incorrect Password: Please Enter Again >> ";
 			std::cin >> password;
@@ -80,12 +58,12 @@ int login(int socket_fd, char* username) {
 
 void* handle_message(void* socket_fd) {
 	char msg_buffer[BUFSIZ];
+	int sock = *(int*)socket_fd;
 	while (true) {
-		_read((int)((size_t)socket_fd), msg_buffer, "Failed to listen for messages");
+		_read(sock, msg_buffer, "Failed to listen for messages");
 		// check what kind of message it is
 		std::cout << std::endl << "    ####### New Message: Message From :" 
 			<< msg_buffer << " ####### " << std::endl;
-
 	}
 	return 0;
 }
@@ -107,7 +85,8 @@ int private_message(int socket_fd) {
 	// wait for response?
 
 	std::cout << std::endl << "Enter Message >> ";
-	std::cin >> msg_buffer;
+	fgets(msg_buffer, BUFSIZ, stdin);
+	msg_buffer[strlen(msg_buffer)-1] = '\0';
 	_write(socket_fd, msg_buffer, "Failed to send message");
 
 	std::cout << "Message Sent" << std::endl;
@@ -120,11 +99,12 @@ int broadcast_message(int socket_fd) {
 
 	strcpy(msg_buffer, "B");
 	_write(socket_fd, msg_buffer, "Failed to send command message B");
-
-	// wait for response?
+	bzero(msg_buffer, BUFSIZ);
 
 	std::cout << std::endl << "Enter Message >> ";
-	std::cin >> msg_buffer;
+
+	fgets(msg_buffer, BUFSIZ, stdin);
+	msg_buffer[strlen(msg_buffer)-1] = '\0';
 	_write(socket_fd, msg_buffer, "Failed to send message");
 
 	std::cout << "Message Sent" << std::endl;

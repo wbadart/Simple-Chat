@@ -61,14 +61,17 @@ int main(int argc, char *argv[]) {
 
 	// start listening thread
 	pthread_t thread;
-	int rc = pthread_create(&thread, NULL, handle_message, (void*)socket_fd);
+	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);
 
 	print_prompt(argv[3]);
 
 	char cmd[BUFSIZ];
+
 	while (true) {
 		std::cout << prompt;
 		std::cin >> cmd;
+		// get rid of newline from the Enter
+		std::cin.ignore();
 
 		if (strcmp(cmd, "P") == 0) {
 			private_message(socket_fd);
@@ -78,7 +81,7 @@ int main(int argc, char *argv[]) {
 			pthread_join(thread, NULL);
 			break;
 		} else {
-			std::cout << "Invalid Command" << std::endl;
+			std::cout << "Invalid Command: " << cmd << std::endl;
 		}
 	}
 

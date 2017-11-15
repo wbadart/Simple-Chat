@@ -15,16 +15,11 @@
 #include <unistd.h>     // close
 #include <sys/types.h>  // PF_INET, SOCK_STREAM
 #include <netdb.h>      // hostent, gethostbyname
-#include <stdio.h>      // fgets, fopen, fseek
 #include <sstream>      // sstream
 #include <sys/time.h>   // gettimeofday
 #include <iostream>     // cout
 #include <string.h>     // strcmp
-#include "util.h"
-
-int usage(int status);
-
-void error(char* fmt, ...);
+#include "utils.h"
 
 int login(int socket_fd, char* user_name);
 
