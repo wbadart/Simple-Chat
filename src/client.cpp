@@ -62,16 +62,15 @@ int main(int argc, char *argv[]) {
 	// start listening thread
 	pthread_t thread;
 	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);
-
-	print_prompt(argv[3]);
+	
+	std::cout << "Welcome " << argv[3] << "!" << std::endl;
 
 	char cmd[BUFSIZ];
 
 	while (true) {
-		std::cout << prompt;
-		std::cin >> cmd;
-		// get rid of newline from the Enter
-		std::cin.ignore();
+		print_prompt();
+		std::cin >> cmd; // ?? WTF this doesnt work
+		std::cout << cmd;
 
 		if (strcmp(cmd, "P") == 0) {
 			private_message(socket_fd);

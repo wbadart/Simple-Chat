@@ -34,6 +34,7 @@ int login(int socket_fd, char* username) {
 	} else {
 		return 0;
 	}
+
 	// send password
 	_write(socket_fd, password, "Failed to login");
 	// wait for confirmation fo password
@@ -58,12 +59,14 @@ int login(int socket_fd, char* username) {
 
 void* handle_message(void* socket_fd) {
 	char msg_buffer[BUFSIZ];
-	int sock = *(int*)socket_fd;
+	int socket = *(int*)socket_fd;
+
 	while (true) {
-		_read(sock, msg_buffer, "Failed to listen for messages");
+		_read(socket, msg_buffer, "Failed to listen for messages");
 		// check what kind of message it is
 		std::cout << std::endl << "    ####### New Message: Message From :" 
 			<< msg_buffer << " ####### " << std::endl;
+		print_prompt();
 	}
 	return 0;
 }
@@ -87,6 +90,7 @@ int private_message(int socket_fd) {
 	std::cout << std::endl << "Enter Message >> ";
 	fgets(msg_buffer, BUFSIZ, stdin);
 	msg_buffer[strlen(msg_buffer)-1] = '\0';
+	
 	_write(socket_fd, msg_buffer, "Failed to send message");
 
 	std::cout << "Message Sent" << std::endl;
@@ -112,9 +116,10 @@ int broadcast_message(int socket_fd) {
 	return 1;
 }
 
-void print_prompt(char* name) {
-	std::cout << "Welcome " << name << "!" << std::endl << 
+void print_prompt() {
+	std::cout <<
 		"Enter P for a private message" << std::endl <<
 		"Enter B for a public message" << std::endl <<
-		"Enter E to exit" << std::endl;
+		"Enter E to exit" << std::endl <<
+		">> ";
 }

@@ -29,4 +29,4 @@ int private_message(int);
 
 int broadcast_message(int);
 
-void print_prompt(char*);
+void print_prompt();
