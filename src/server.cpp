@@ -25,6 +25,8 @@
 
 #define MAX_THREADS 10
 
+std::map<char*, int> online_users;
+
 // the thread function
 void *connection_handler(void *);
 
@@ -68,6 +70,9 @@ int main(int argc, char *argv[]) {
         // authenticate user
         char client_usrname[BUFSIZ];
         _read(client_socket, client_usrname, "Failed to get username");
+
+		// add user to online_users
+		online_users[client_usrname] = client_socket;
         
         char client_pass[BUFSIZ];
         std::string res = db.query(client_usrname);
@@ -121,20 +126,50 @@ int main(int argc, char *argv[]) {
 void *connection_handler(void *socket_desc){
     // Get the socket descriptor
     int sock = *(int*)socket_desc;
-    char *message, client_message[BUFSIZ];
+    char message[BUFSIZ], client_message[BUFSIZ];
 
     // Receive a message from client
     while( _read(sock, client_message, "Failed to read from client") > 0) {         
-        // Send the message back to client
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
+			printf("PRIVATE\n");
         	// send back live users (from db class)
-        	// send message to correct socket
+			for( auto it: online_users){
+				strcat(message,it.first);
+			}
+			printf("users: %s\n", message);
+			_write(sock, message, "write back live users to client failed");
+
+			// read username from client
+			_read(sock, client_message, "Failed to read username from client");
+			int rec_sock = online_users[client_message];
+
+			// read message from client
+			_read(sock, client_message, "Failed to read message from client");
+
+			// send message to correct socket
+			_write(rec_sock, client_message, "Failed to send private message");
+			
         } else if (strcmp(client_message, "B") == 0) {
-        	// send message to all other clients
+			printf("BROADCAST\n");
+			
+			// read message from client
+        	_read(sock, client_message, "Failed to receive broadcast message from client");
+
+			// send message to all other clients
+			for( auto it: online_users){
+				_write(it.second, client_message, "Failed to broadcast message");
+			}
         }
         // write(sock, client_message, strlen(client_message));
     }
+
+	// remove client from online_users
+	for( auto it : online_users){
+		if( it.second == sock){
+			online_users.erase(it.first);
+		}
+	}	
 
     puts("Client disconnected");
     return 0;
