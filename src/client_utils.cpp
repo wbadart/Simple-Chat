@@ -80,8 +80,7 @@ void* handle_message(void* socket_fd) {
 				READY = 1; STATE = 0;
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
-				CONTROL_CHAR2(msg_buffer) = '\0';
-				std::cout << CONTROL_CHAR2(msg_buffer) << std::endl;
+				std::cout << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
 				send_private_message(socket);
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
@@ -95,7 +94,7 @@ void* handle_message(void* socket_fd) {
 int send_private_message(int socket) {
 	char msg_buffer[BUFSIZ];
 	char username[BUFSIZ];
-	
+
 	// read username
 	std::cout << "Enter Username >> ";
 	std::cin >> username;
