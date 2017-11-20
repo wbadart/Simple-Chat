@@ -26,6 +26,8 @@
 #define MAX_THREADS 10
 
 std::map<char*, int> online_users;
+UserDatabase db("./users.db");
+
 
 // the thread function
 void *connection_handler(void *);
@@ -35,8 +37,6 @@ int main(int argc, char *argv[]) {
         puts("Missing argument PORT.");
         exit(1);
     }
-
-    UserDatabase db("./users.db");
 
     int socket_desc, client_socket, c;
     struct sockaddr_in server, client;
@@ -76,9 +76,6 @@ int main(int argc, char *argv[]) {
         char client_usrname[BUFSIZ];
         _read(client_socket, client_usrname, "Failed to get username");
 
-		// add user to online_users
-		online_users[client_usrname] = client_socket;
-
         char client_pass[BUFSIZ];
         std::string res = db.query(client_usrname);
         if(strcmp(res.c_str(), "") != 0){
@@ -86,7 +83,7 @@ int main(int argc, char *argv[]) {
         	_write(client_socket, "Old", "Failed to send response");
         	// get password
         	_read(client_socket, client_pass, "Failed to get password");
-            while(!db.login(client_usrname, client_pass)){
+            while(!db.login(client_usrname, client_pass, client_socket)){
 	        	_write(client_socket, "Fail", "Failed to send response");
                 printf("wrong password");
                 _read(client_socket, client_pass, "Failed to get password");
@@ -140,9 +137,8 @@ void *connection_handler(void *socket_desc){
 			printf("PRIVATE\n");
 
         	// send back live users (from db class)
-			for( auto it: online_users){
-				strcat(message,it.first);
-			}
+            for(const auto& it: db.client_sockets())
+                strcat(message, it.first.c_str());
 			printf("users: %s\n", message);
 
 			// end message with 1C
@@ -152,7 +148,7 @@ void *connection_handler(void *socket_desc){
 
 			// read username from client
 			_read(sock, client_message, "Failed to read username from client");
-			int rec_sock = online_users[client_message];
+			int rec_sock = db.client_sockets().at(client_message);
 
 			// read message from client
 			_read(sock, client_message, "Failed to read message from client");
@@ -178,20 +174,18 @@ void *connection_handler(void *socket_desc){
 
 			// send message to all other clients
 			strcat(client_message, "D");
-			for( auto it: online_users){
-				if( it.second != sock){
+            for(const auto& it: db.client_sockets())
+                // if(it.second != sock)
 					_write(it.second, client_message, "Failed to broadcast message");
-				}
-			}
+
 			strcpy(broadcast_mess, "0C");
 			_write(sock, broadcast_mess, "Failed to send final message to client");
+
         } else if (strcmp(client_message, "E") == 0) {
 			// remove client from online_users
-			for( auto it : online_users){
-				if( it.second == sock){
-					online_users.erase(it.first);
-				}
-			}
+			for(const auto& it : db.client_sockets())
+				if( it.second == sock)
+                    db.logout(it.first);
 
     		puts("Client disconnected");
 			return 0;

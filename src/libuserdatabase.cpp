@@ -58,9 +58,11 @@ std::string UserDatabase::query(const std::string& username) const {
 
 
 bool UserDatabase::login(
-        const std::string& username, const std::string& password) {
+        const std::string& username,
+        const std::string& password,
+        const int client_socket_fd) {
     if(_authenticate(username, password)) {
-        m_online.insert(username);
+        m_online.emplace(username, client_socket_fd);
         return true;
     } else return false;
 }
@@ -68,6 +70,10 @@ bool UserDatabase::login(
 
 void UserDatabase::logout(const std::string& username) {
     m_online.erase(m_online.find(username));
+}
+
+const std::map<std::string, int>& UserDatabase::client_sockets() const {
+    return m_online;
 }
 
 
