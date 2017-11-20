@@ -15,8 +15,9 @@
 
 
 UserDatabase::UserDatabase(const std::string& path)
-        : m_path(path), m_datafs(new std::fstream(path.c_str())) {
-    for(std::string user; std::getline(*m_datafs, user);) {
+        : m_path(path), m_datafs(new std::ofstream(path.c_str())) {
+    std::ifstream current_data(path.c_str());
+    for(std::string user; std::getline(current_data, user);) {
         // Skip comments (e.g. "DO NOT EDIT" remark) and blanks in data file
         if(user.size() == 0 || user.at(0) == '#') continue;
 
@@ -27,9 +28,7 @@ UserDatabase::UserDatabase(const std::string& path)
 
         m_cache.emplace(username, password);
     }
-
-    // Reset error flag
-    m_datafs->clear();
+    current_data.close();
 }
 
 
@@ -48,6 +47,7 @@ bool UserDatabase::add_user(
         return false;
     m_cache.emplace(username, password);
     *m_datafs << std::endl << username << "|" << password;
+    m_datafs->flush();
     return m_datafs->good();
 }
 

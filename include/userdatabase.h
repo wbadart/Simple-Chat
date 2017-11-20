@@ -59,7 +59,7 @@ class UserDatabase {
     std::string m_path;
 
     // Filestream object of data file
-    std::fstream* m_datafs;
+    std::ofstream* m_datafs;
 
     // Cache query results (map usernames to User)
     std::map<std::string, std::string> m_cache;

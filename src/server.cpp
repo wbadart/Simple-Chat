@@ -174,10 +174,9 @@ void *connection_handler(void *socket_desc){
         	_read(sock, client_message, "Failed to receive broadcast message from client");
 
 			// send message to all other clients
-			// strcat(client_message, "D");
-			client_message[strlen(client_message)] = 'D';
+			strcat(client_message, "D");
             for(const auto& it: db.client_sockets())
-                // if(it.second != sock)
+                if(it.second != sock)
 					_write(it.second, client_message, "Failed to broadcast message");
 
 			strcpy(broadcast_mess, "0C");
