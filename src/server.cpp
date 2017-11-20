@@ -78,23 +78,23 @@ int main(int argc, char *argv[]) {
         std::string res = db.query(client_usrname);
         if(strcmp(res.c_str(), "") != 0){
         	// send response of Old/New
-        	_write(client_socket, "Old4C", "Failed to send response");
+        	_write(client_socket, "Old", "Failed to send response");
         	// get password
         	_read(client_socket, client_pass, "Failed to get password");
             while(!db.login(client_usrname, client_pass)){
-	        	_write(client_socket, "Fail6C", "Failed to send response");
+	        	_write(client_socket, "Fail", "Failed to send response");
                 printf("wrong password");
                 _read(client_socket, client_pass, "Failed to get password");
             }
             // login successful
-        	_write(client_socket, "Success5C", "Failed to send response");
+        	_write(client_socket, "Success", "Failed to send response");
             printf("returning user signed in\n");
         } else {
-        	_write(client_socket, "New3C", "Failed to send response");
+        	_write(client_socket, "New", "Failed to send response");
         	_read(client_socket, client_pass, "Failed to get new password");
 	        if(db.add_user(client_usrname, client_pass)){
                 printf("user created and signed in");
-                _write(client_socket, "Success5C", "Failed to send success message");
+                _write(client_socket, "Success", "Failed to send success message");
             } else {
                 perror("add_user failed");
                 return 1;
