@@ -75,7 +75,8 @@ void* handle_message(void* socket_fd) {
                 printf("got through it\n");
             } else if (STATE == States::GET_BROADCAST_BODY) {
                 send_broadcast_message(socket);
-            } else if (STATE == States::GET_DM_BODY) { // DM usernames have been recieved
+            } else if (STATE == States::WAIT_DM_READY) {
+                STATE = States::GET_DM_BODY;
             }
 		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
 			if (CONTROL_CHAR2(msg_buffer) == '0') {
