@@ -31,6 +31,7 @@
 enum class States {
     CMD_CHOICE,
     GET_BROADCAST_BODY,
+    START_DM,
     GET_DM_USERNAME,
     GET_DM_BODY,
     WAIT_DM_READY,

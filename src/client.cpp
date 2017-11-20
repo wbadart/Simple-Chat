@@ -77,23 +77,26 @@ int main(int argc, char *argv[]) {
 		if (READY) {
 			std::cin >> cmd;
 			if (strcmp(cmd, "P") == 0) {
-				// pause reading from stdin
-				READY = 0; STATE = States::GET_DM_USERNAME;
+				// send private message
+				READY = 0; STATE = States::START_DM;
 				private_message(socket_fd);
-                while(STATE == States::WAIT_DM_READY);
+                while(STATE == States::GET_DM_USERNAME);
 				send_private_message(socket_fd);
+
 			} else if (strcmp(cmd, "B") == 0) {
-				// pause reading from stdin
+				// send broadcast message
 				READY = 0; STATE = States::GET_BROADCAST_BODY;
 				broadcast_message(socket_fd);
                 while(STATE == States::WAIT_BROADCAST_READY);
                 send_broadcast_message(socket_fd);
+
 			} else if (strcmp(cmd, "E") == 0) {
 				// shut down thread
 				ACTIVE = 0;
 				_write(socket_fd, "E", "Failed to send exit command");
 				pthread_join(thread, NULL);
 				break;
+
 			} else {
 				std::cout << "Invalid Command: " << cmd << std::endl;
 			}
