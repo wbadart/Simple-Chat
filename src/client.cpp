@@ -92,7 +92,6 @@ int main(int argc, char *argv[]) {
 			} else {
 				std::cout << "Invalid Command: " << cmd << std::endl;
 			}
-			std::cout << cmd << std::endl;
 		}
 	}
 

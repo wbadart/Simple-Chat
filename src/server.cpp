@@ -152,8 +152,12 @@ void *connection_handler(void *socket_desc){
 			// read message from client
 			_read(sock, client_message, "Failed to read message from client");
 
+			printf("%d %d ", rec_sock, sock);
 			// send message to correct socket
 			_write(rec_sock, client_message, "Failed to send private message");
+
+			strcpy(client_message, "0C");
+			_write(rec_sock, client_message, "Failed to confirm message");
 			
         } else if (strcmp(client_message, "B") == 0) {
 			printf("BROADCAST\n");
@@ -165,8 +169,6 @@ void *connection_handler(void *socket_desc){
 	
 			// read message from client
         	_read(sock, client_message, "Failed to receive broadcast message from client");
-        	printf("%s", client_message);
-        	fflush(stdout);
 
 			// send message to all other clients
 			for( auto it: online_users){

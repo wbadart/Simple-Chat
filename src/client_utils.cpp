@@ -103,7 +103,9 @@ int send_private_message(char users[BUFSIZ], int socket) {
 	// send user
 	_write(socket, username, "Failed to send username");
 	// read message
-	fgets(msg_buffer, BUFSIZ, stdin);
+	std::cout << "Enter Private Message >> ";
+	std::cin.ignore();
+	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
 
@@ -144,11 +146,6 @@ int broadcast_message(int socket_fd) {
 }
 
 void print_prompt() {
-	// std::cout <<
-	// 	"Enter P for a private message" << std::endl <<
-	// 	"Enter B for a public message" << std::endl <<
-	// 	"Enter E to exit" << std::endl <<
-	// 	">> ";
 	printf("Enter P for a private message\n");
 	printf("Enter B for a broadcast message\n");
 	printf("Enter E to exit\n");
