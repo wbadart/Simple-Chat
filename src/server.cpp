@@ -139,6 +139,7 @@ void *connection_handler(void *socket_desc){
         	// send back live users (from db class)
             for(const auto& it: db.client_sockets())
                 strcat(message, it.first.c_str());
+
 			printf("users: %s\n", message);
 
 			// end message with 1C

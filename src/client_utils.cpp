@@ -46,7 +46,7 @@ int login(int socket_fd, char* username) {
 			std::cout << "Incorrect Password: Please Enter Again >> ";
 			std::cin >> password;
 			// send password
-			_write(socket_fd, "Failed to login", password);
+			_write(socket_fd, password, "Failed to login");
 			// wait for confirmation fo password
 			_read(socket_fd, msg_buffer, "Could not read response from login");
 			if (strcmp(msg_buffer, "Success") == 0) return 1;
@@ -63,6 +63,7 @@ void* handle_message(void* socket_fd) {
 
 	while (ACTIVE) {
 		_read(socket, msg_buffer, "Failed to listen for messages");
+		if (strlen(msg_buffer) <= 0) break;
 		last_char = strlen(msg_buffer) - 1;
 
 		// check what kind of message it is
