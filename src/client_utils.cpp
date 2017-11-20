@@ -112,7 +112,7 @@ void get_dm_body(int socket) {
 
 	print_prompt();
 	// read message
-	// std::cin.ignore();
+	std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
@@ -123,7 +123,7 @@ void get_dm_body(int socket) {
 void get_broadcast_body(int socket) {
 	char msg_buffer[BUFSIZ];
 	// read message
-	// std::cin.ignore();
+	std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 
 	// send message
@@ -177,5 +177,5 @@ void print_prompt() {
             error("UNKNOWN STATE");
 
     }
-    // fflush(stdout);
+    fflush(stdout);
 }

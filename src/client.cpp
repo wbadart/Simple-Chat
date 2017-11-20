@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
 	char msg_buffer[BUFSIZ];
 	bzero(msg_buffer, BUFSIZ);
 
-	const char prompt[] = ">> ";
-
 	int socket_fd;
 	struct sockaddr_in sin;
 
@@ -100,7 +98,6 @@ int main(int argc, char *argv[]) {
 				// shut down thread
 				ACTIVE = 0;
 				_write(socket_fd, "E", "Failed to send exit command");
-				pthread_join(thread, NULL);
 				break;
 
 			} else {
