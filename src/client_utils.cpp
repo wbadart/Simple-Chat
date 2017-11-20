@@ -126,11 +126,14 @@ int send_private_message(char users[BUFSIZ], int socket) {
 }
 
 int send_broadcast_message(int socket) {
-	puts("Enter Broadcast Message >> ");
+	printf("Enter Broadcast Message >> ");
+	fflush(stdout);
 
 	char msg_buffer[BUFSIZ];
 	// read message
 	fgets(msg_buffer, BUFSIZ, stdin);
+	// std::cin.getline(msg_buffer, BUFSIZ);
+	printf("%s", msg_buffer);
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
 
