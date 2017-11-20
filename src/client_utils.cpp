@@ -66,26 +66,34 @@ void* handle_message(void* socket_fd) {
 
 		// check what kind of message it is
 		if (CONTROL_CHAR1(msg_buffer) == 'D') {
-			CONTROL_CHAR1(msg_buffer) = '\0';
+
 			std::cout << std::endl << "    ####### New Message: "
-				<< CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
-			if (STATE == 0) print_prompt();
-			else if (STATE == 1) send_private_message(socket);
-			else if (STATE == 2) send_broadcast_message(socket);
+				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
+            print_prompt();
+
+            // if (STATE == States::WAIT_DM_READY) {
+            //     STATE = States::GET_DM_BODY;
+            // }
+
 		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
+
 			if (CONTROL_CHAR2(msg_buffer) == '0') {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
 				print_prompt();
-				READY = 1; STATE = 0;
+				READY = 1; STATE = States::CMD_CHOICE;
+
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
-				// private exchange
-				std::cout << msg_buffer << std::endl;
-				send_private_message(socket);
+        // print list of online users and prepare to get name of user
+				std::cout << "USERS:\n" << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
+        STATE = States::GET_DM_USERNAME;
+
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
-				send_broadcast_message(socket);
+                STATE = States::GET_BROADCAST_BODY;
+                print_prompt();
 			}
+
 		}
 	}
 	return 0;
@@ -94,33 +102,33 @@ void* handle_message(void* socket_fd) {
 int send_private_message(int socket) {
 	char msg_buffer[BUFSIZ];
 	char username[BUFSIZ];
-	
+
 	// read username
-	std::cout << "Enter Username >> ";
 	std::cin >> username;
 
 	// send user
 	_write(socket, username, "Failed to send username");
+    STATE = States::GET_DM_BODY;
+
 	// read message
-	std::cout << "Enter Private Message >> ";
-	std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
+
+    STATE = States::CMD_CHOICE;
 
 	return 1;
 }
 
 int send_broadcast_message(int socket) {
-	printf("Enter Broadcast Message >> ");
 
 	char msg_buffer[BUFSIZ];
 	// read message
-	std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
+    STATE = States::CMD_CHOICE;
 
 	return 1;
 }
@@ -130,6 +138,7 @@ int private_message(int socket_fd) {
 
 	strcpy(msg_buffer, "P");
 	_write(socket_fd, msg_buffer, "Failed to send command message P");
+    STATE = States::GET_DM_USERNAME;
 
 	return 1;
 }
@@ -139,15 +148,35 @@ int broadcast_message(int socket_fd) {
 
 	strcpy(msg_buffer, "B");
 	_write(socket_fd, msg_buffer, "Failed to send command message B");
+    STATE = States::WAIT_BROADCAST_READY;
 
 	return 1;
 }
 
 void print_prompt() {
-	printf("Enter P for a private message\n");
-	printf("Enter B for a broadcast message\n");
-	printf("Enter E to exit\n");
-	printf(">> ");
-	fflush(stdout);
-	fflush(stdin);
+	    switch(STATE) {
+        case States::CMD_CHOICE:
+            printf("Enter P for a private message\n");
+	        printf("Enter B for a broadcast message\n");
+	        printf("Enter E to exit\n");
+            printf(">> ");
+            break;
+        case States::GET_BROADCAST_BODY:
+            printf("Enter Broadcast Message >> ");
+            break;
+        case States::GET_DM_USERNAME:
+        case States::START_DM:
+            printf("Enter Username >> ");
+            break;
+        case States::GET_DM_BODY:
+            printf("Enter Private Message >> ");
+            break;
+        case States::WAIT_BROADCAST_READY:
+            break;
+        case States::WAIT_DM_READY:
+            break;
+        default:
+            error("UNKNOWN STATE");
+
+    }
 }

@@ -136,17 +136,20 @@ void *connection_handler(void *socket_desc){
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
-            // end message with 1C
-			strcat(message, "C1");
+        	
+            // put C1 in front of message
+			strcpy(message, "C1");
 
             // send back live users (from db class)
             for(const auto& it: db.client_sockets()) {
+                if(it.second == sock) continue;
                 strcat(message, it.first.c_str());
-                std::cout << it.first << std::endl;
+                strcat(message, "\n");
+                std::cout << it.first << ":" << it.second << std::endl;
             }
 
 			printf("users: %s\n", message);
-		
+
 			_write(sock, message, "write back live users to client failed");
             printf("users: %s\n", message);
 
@@ -167,7 +170,7 @@ void *connection_handler(void *socket_desc){
 			_write(rec_sock, enc_client_message, "Failed to send private message");
 
 			strcpy(client_message, "C0");
-			_write(rec_sock, client_message, "Failed to confirm message");
+			_write(sock, client_message, "Failed to confirm message");
 
         } else if (strcmp(client_message, "B") == 0) {
             printf("BROADCAST\n");
