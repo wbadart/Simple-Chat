@@ -61,6 +61,7 @@ void* handle_message(void* socket_fd) {
 	int socket = *(int*)socket_fd;
 
 	while (ACTIVE) {
+        printf("here\n");
 		_read(socket, msg_buffer, "Failed to listen for messages");
 		if (strlen(msg_buffer) <= 0) break;
 
@@ -68,7 +69,11 @@ void* handle_message(void* socket_fd) {
 		if (CONTROL_CHAR1(msg_buffer) == 'D') {
 			std::cout << std::endl << "    ####### New Message: "
 				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
-			if (STATE == 0) print_prompt();
+			if (STATE == 0){
+                printf("printing prompt\n");
+                print_prompt();
+                printf("got through it\n");
+            }
 			else if (STATE == 1) send_private_message(socket);
 			else if (STATE == 2) send_broadcast_message(socket);
 		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
@@ -147,6 +152,6 @@ void print_prompt() {
 	printf("Enter B for a broadcast message\n");
 	printf("Enter E to exit\n");
 	printf(">> ");
-	fflush(stdout);
-	fflush(stdin);
+	//fflush(stdout);
+	//fflush(stdin);
 }
