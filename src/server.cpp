@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
             _write(client_socket, "New", "Failed to send response");
             _read(client_socket, client_pass, "Failed to get new password");
             if(db.add_user(client_usrname, client_pass)){
-                printf("user created and signed in");
+                printf("user created and signed in\n");
                 _write(client_socket, "Success", "Failed to send success message");
                 db.login(client_usrname, client_pass, client_socket);
             } else {
@@ -133,7 +133,6 @@ void *connection_handler(void *socket_desc){
 
     // Receive a message from client
     while( _read(sock, client_message, "Failed to read from client") > 0) {
-        std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
         	
@@ -145,13 +144,9 @@ void *connection_handler(void *socket_desc){
                 if(it.second == sock) continue;
                 strcat(message, it.first.c_str());
                 strcat(message, "\n");
-                std::cout << it.first << ":" << it.second << std::endl;
             }
 
-			printf("users: %s\n", message);
-
 			_write(sock, message, "write back live users to client failed");
-            printf("users: %s\n", message);
 
 
             // read username from client
