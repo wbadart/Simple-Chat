@@ -81,7 +81,7 @@ void* handle_message(void* socket_fd) {
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
 				CONTROL_CHAR2(msg_buffer) = '\0';
-				std::cout << CONTROL_CHAR2(msg_buffer) << std::endl;
+				std::cout << msg_buffer << std::endl;
 				send_private_message(socket);
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
