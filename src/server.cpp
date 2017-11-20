@@ -154,6 +154,7 @@ void *connection_handler(void *socket_desc){
 
 			printf("%d %d ", rec_sock, sock);
 			// send message to correct socket
+			strcat(client_message, "D");
 			_write(rec_sock, client_message, "Failed to send private message");
 
 			strcpy(client_message, "0C");
@@ -171,6 +172,7 @@ void *connection_handler(void *socket_desc){
         	_read(sock, client_message, "Failed to receive broadcast message from client");
 
 			// send message to all other clients
+			strcat(client_message, "D");
 			for( auto it: online_users){
 				if( it.second != sock){
 					_write(it.second, client_message, "Failed to broadcast message");
