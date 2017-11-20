@@ -28,9 +28,17 @@
 #define STRIP_CONTROL_CHAR1(s) (s+1)
 #define STRIP_CONTROL_CHAR2(s) (s+2)
 
+enum class States {
+    CMD_CHOICE,
+    GET_BROADCAST_BODY,
+    GET_DM_USERNAME,
+    GET_DM_BODY,
+    WAIT_DM_READY,
+};
+
 extern int ACTIVE;
 extern int READY;
-extern int STATE;
+extern States STATE;
 
 int login(int socket_fd, char* user_name);
 
