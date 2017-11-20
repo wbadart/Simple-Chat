@@ -79,16 +79,22 @@ int main(int argc, char *argv[]) {
 			if (strcmp(cmd, "P") == 0) {
 				// send private message
 				READY = 0; STATE = States::START_DM;
-				private_message(socket_fd);
-                while(STATE == States::GET_DM_USERNAME);
-				send_private_message(socket_fd);
+				start_private_message(socket_fd);
+                while(STATE == States::WAIT_FOR_USERS);
+                // state is now GET_DM_USERS
+				get_dm_username(socket_fd);
+				while(STATE == States::GET_DM_USERNAME);
+				// state is now GET_DM_BODY
+				get_dm_body(socket_fd);
 
 			} else if (strcmp(cmd, "B") == 0) {
 				// send broadcast message
-				READY = 0; STATE = States::GET_BROADCAST_BODY;
-				broadcast_message(socket_fd);
+				READY = 0; STATE = States::START_BROADCAST;
+				start_broadcast_message(socket_fd);
                 while(STATE == States::WAIT_BROADCAST_READY);
-                send_broadcast_message(socket_fd);
+                // state is now GET_BROADCAST_BODY
+                get_broadcast_body(socket_fd);
+                while(STATE == States::GET_BROADCAST_BODY);
 
 			} else if (strcmp(cmd, "E") == 0) {
 				// shut down thread
