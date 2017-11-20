@@ -137,6 +137,7 @@ void *connection_handler(void *socket_desc){
         	// send back live users (from db class)
 			for( auto it: online_users){
 				strcat(message,it.first);
+        strcat(message,", ");
 			}
 			printf("users: %s\n", message);
 
