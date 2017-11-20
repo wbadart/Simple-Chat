@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "Welcome " << argv[3] << "!" << std::endl;
 	print_prompt();
+	int READY = 1;
 	// start listening thread
 	pthread_t thread;
 	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);	
@@ -71,19 +72,23 @@ int main(int argc, char *argv[]) {
 	char cmd[BUFSIZ];
 
 	while (true) {
-		std::cin >> cmd;
-
-		if (strcmp(cmd, "P") == 0) {
-			private_message(socket_fd);
-		} else if (strcmp(cmd, "B") == 0) {
-			broadcast_message(socket_fd);
-		} else if (strcmp(cmd, "E") == 0) {
-			ACTIVE = 0;
-			_write(socket_fd, "E", "Failed to send exit command");
-			pthread_join(thread, NULL);
-			break;
-		} else {
-			std::cout << "Invalid Command: " << cmd << std::endl;
+		if (READY) {
+			std::cin >> cmd;
+			if (strcmp(cmd, "P") == 0) {
+				READY = 0;
+				private_message(socket_fd);
+			} else if (strcmp(cmd, "B") == 0) {
+				READY = 0;
+				broadcast_message(socket_fd);
+			} else if (strcmp(cmd, "E") == 0) {
+				ACTIVE = 0;
+				_write(socket_fd, "E", "Failed to send exit command");
+				pthread_join(thread, NULL);
+				break;
+			} else {
+				std::cout << "Invalid Command: " << cmd << std::endl;
+			}
+			std::cout << cmd << std::endl;
 		}
 	}
 

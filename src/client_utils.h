@@ -23,6 +23,7 @@
 #include "utils.h"
 
 extern int ACTIVE;
+extern int READY;
 
 int login(int socket_fd, char* user_name);
 

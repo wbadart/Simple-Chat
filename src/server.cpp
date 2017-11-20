@@ -159,18 +159,16 @@ void *connection_handler(void *socket_desc){
 			printf("BROADCAST\n");
 	
 			// send back C2 code	
-			puts("hi there");
 			char broadcast_mess[BUFSIZ];
 			strcpy(broadcast_mess, "2C");
-			printf("%s", broadcast_mess);
 			_write(sock, broadcast_mess, "Failed to write back to client");
 	
 			// read message from client
         	_read(sock, client_message, "Failed to receive broadcast message from client");
         	printf("%s", client_message);
+        	fflush(stdout);
 
 			// send message to all other clients
-			// TODO: exclude sender
 			for( auto it: online_users){
 				if( it.second != sock){
 					_write(it.second, client_message, "Failed to broadcast message");

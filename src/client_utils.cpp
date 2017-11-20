@@ -82,24 +82,8 @@ void* handle_message(void* socket_fd) {
 				send_private_message(msg_buffer, socket);
 			} else if (msg_buffer[last_char-1] == '2') {
 				// broadcast exchange
-				puts("i am here");
 				send_broadcast_message(socket);
-			} 
-			/*else if (msg_buffer[last_char-1] == '3') {
-				// login new user
-				send_password_new(socket);
-			} else if (msg_buffer[last_char-1] == '4') {
-				// login old user
-				send_password_old(socket);
-			} else if (msg_buffer[last_char-1] == '5') {
-				// login password success
-			} else if (msg_buffer[last_char-1] == '6') {
-				// login password fail
-				std::cout << "Incorrect Password" << std::endl <<
-					"Try Again ";
-				send_password_old(socket);
 			}
-			*/
 		}
 	}
 	return 0;
@@ -122,21 +106,24 @@ int send_private_message(char users[BUFSIZ], int socket) {
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
 
+	int READY = 1;
+
 	return 1;
 }
 
 int send_broadcast_message(int socket) {
 	printf("Enter Broadcast Message >> ");
-	fflush(stdout);
 
 	char msg_buffer[BUFSIZ];
 	// read message
-	fgets(msg_buffer, BUFSIZ, stdin);
-	// std::cin.getline(msg_buffer, BUFSIZ);
+	std::cin.ignore();
+	std::cin.getline(msg_buffer, BUFSIZ);
+
 	printf("%s", msg_buffer);
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
 
+	int READY = 1;
 	return 1;
 }
 
