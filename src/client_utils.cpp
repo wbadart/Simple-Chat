@@ -18,7 +18,7 @@ int login(int socket_fd, char* username) {
 		
 	// send server username
 	_write(socket_fd, username, "Failed to send username");
-
+	/*
 	// wait for confirmation
 	_read(socket_fd, msg_buffer, "Failed to receive confirmation");
 
@@ -53,47 +53,114 @@ int login(int socket_fd, char* username) {
 			if (strcmp(msg_buffer, "Success") == 0) return 1;
 		}
 	}
-
-	return 0;
+	*/
+	return 1;
 }
 
 void* handle_message(void* socket_fd) {
 	char msg_buffer[BUFSIZ];
 	int socket = *(int*)socket_fd;
+	int last_char;
 
 	while (true) {
 		_read(socket, msg_buffer, "Failed to listen for messages");
+		last_char = strlen(msg_buffer) - 1;
+
 		// check what kind of message it is
-		std::cout << std::endl << "    ####### New Message: Message From :" 
-			<< msg_buffer << " ####### " << std::endl;
-		print_prompt();
+		if (msg_buffer[last_char] == 'D') { 
+			msg_buffer[last_char] = '\0';
+			std::cout << std::endl << "    ####### New Message: Message From: " 
+				<< msg_buffer << " ####### " << std::endl;
+			print_prompt();
+		} else if (msg_buffer[last_char] == 'C') {
+			if (msg_buffer[last_char-1] == '0') {
+				// successful transaction message
+				std::cout << "Message Sent" << std::endl;
+			} else if (msg_buffer[last_char-1] == '1') {
+				// private exchange
+				msg_buffer[last_char-1] = '\0';
+				send_private_message(msg_buffer, socket);
+			} else if (msg_buffer[last_char-1] == '2') {
+				// broadcast exchange
+				send_broadcast_message(socket);
+			} else if (msg_buffer[last_char-1] == '3') {
+				// login new user
+				send_password_new(socket);
+			} else if (msg_buffer[last_char-1] == '4') {
+				// login old user
+				send_password_old(socket);
+			} else if (msg_buffer[last_char-1] == '5') {
+				// login password success
+			} else if (msg_buffer[last_char-1] == '6') {
+				// login password fail
+				std::cout << "Incorrect Password" << std::endl <<
+					"Try Again ";
+				send_password_old(socket);
+			}
+		}
 	}
 	return 0;
 }
 
-int private_message(int socket_fd) {
+int send_password_new(int socket_fd) {
+	char password[BUFSIZ];
+
+	std::cout << "New User? Create Password >> ";
+	std::cin >> password;
+	// send password
+	_write(socket_fd, password, "Failed to login");
+
+	return 1;
+}
+
+int send_password_old(int socket_fd) {
+	char password[BUFSIZ];
+
+	std::cout << "Password >> ";
+	std::cin >> password;
+	// send password
+	_write(socket_fd, password, "Failed to login");
+
+	return 1;
+}
+
+int send_private_message(char users[BUFSIZ], int socket) {
 	char msg_buffer[BUFSIZ];
 	char username[BUFSIZ];
+	// print online users
+	std::cout << users << std::endl;
+
+	// read username
+	std::cout << "Enter Username >> ";
+	std::cin >> username;
+
+	// send user
+	_write(socket, username, "Failed to send username");
+	// read message
+	fgets(msg_buffer, BUFSIZ, stdin);
+	// send message
+	_write(socket, msg_buffer, "Failed to send private message");
+
+	return 1;
+}
+
+int send_broadcast_message(int socket) {
+	char msg_buffer[BUFSIZ];
+
+	// read message
+	fgets(msg_buffer, BUFSIZ, stdin);
+	// send message
+	_write(socket, msg_buffer, "Failed to send broadcast message");
+
+	return 1;
+}
+
+
+int private_message(int socket_fd) {
+	char msg_buffer[BUFSIZ];
 
 	strcpy(msg_buffer, "P");
 	_write(socket_fd, msg_buffer, "Failed to send command message P");
-	_read(socket_fd, msg_buffer, "Failed to get online users");
-	bzero(msg_buffer, BUFSIZ);
-
-	std::cout << msg_buffer << std::endl;
-	std::cout << "Enter Username >> ";
-	std::cin >> username;
-	_write(socket_fd, username, "Failed to send username");
-
-	// wait for response?
-
-	std::cout << std::endl << "Enter Message >> ";
-	fgets(msg_buffer, BUFSIZ, stdin);
-	msg_buffer[strlen(msg_buffer)-1] = '\0';
-	
-	_write(socket_fd, msg_buffer, "Failed to send message");
-
-	std::cout << "Message Sent" << std::endl;
 
 	return 1;
 }
@@ -103,15 +170,6 @@ int broadcast_message(int socket_fd) {
 
 	strcpy(msg_buffer, "B");
 	_write(socket_fd, msg_buffer, "Failed to send command message B");
-	bzero(msg_buffer, BUFSIZ);
-
-	std::cout << std::endl << "Enter Message >> ";
-
-	fgets(msg_buffer, BUFSIZ, stdin);
-	msg_buffer[strlen(msg_buffer)-1] = '\0';
-	_write(socket_fd, msg_buffer, "Failed to send message");
-
-	std::cout << "Message Sent" << std::endl;
 
 	return 1;
 }

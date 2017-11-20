@@ -58,25 +58,24 @@ int main(int argc, char *argv[]) {
 		char msg[] = "Failed to login\n";
 		error(msg);
 	}
+	std::cout << "Welcome " << argv[3] << "!" << std::endl;
 
 	// start listening thread
 	pthread_t thread;
-	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);
-	
-	std::cout << "Welcome " << argv[3] << "!" << std::endl;
+	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);	
 
 	char cmd[BUFSIZ];
 
 	while (true) {
 		print_prompt();
-		std::cin >> cmd; // ?? WTF this doesnt work
-		std::cout << cmd;
+		std::cin >> cmd;
 
 		if (strcmp(cmd, "P") == 0) {
 			private_message(socket_fd);
 		} else if (strcmp(cmd, "B") == 0) {
 			broadcast_message(socket_fd);
 		} else if (strcmp(cmd, "E") == 0) {
+			_write(socket_fd, "E", "Failed to send exit command");
 			pthread_join(thread, NULL);
 			break;
 		} else {

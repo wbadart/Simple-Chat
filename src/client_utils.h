@@ -19,11 +19,20 @@
 #include <sys/time.h>   // gettimeofday
 #include <iostream>     // cout
 #include <string.h>     // strcmp
+#include <string>
 #include "utils.h"
 
 int login(int socket_fd, char* user_name);
 
 void* handle_message(void*);
+
+int send_private_message(char users[BUFSIZ], int);
+
+int send_broadcast_message(int);
+
+int send_password_new(int);
+
+int send_password_old(int);
 
 int private_message(int);
 
