@@ -72,9 +72,7 @@ void* handle_message(void* socket_fd) {
 				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
             print_prompt();
 
-			if (STATE == States::GET_BROADCAST_BODY) {
-                send_broadcast_message(socket);
-            } else if (STATE == States::WAIT_DM_READY) {
+            if (STATE == States::WAIT_DM_READY) {
                 STATE = States::GET_DM_BODY;
             }
 
@@ -93,7 +91,9 @@ void* handle_message(void* socket_fd) {
 
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
-				send_broadcast_message(socket);
+				// send_broadcast_message(socket);
+                STATE = States::GET_BROADCAST_BODY;
+                print_prompt();
 			}
 
 		}
@@ -106,14 +106,18 @@ int send_private_message(int socket) {
 	char username[BUFSIZ];
 
 	// read username
-	std::cout << "Enter Username >> ";
+	// std::cout << "Enter Username >> ";
 	std::cin >> username;
+
+    STATE = States::GET_DM_USERNAME;
 
 	// send user
 	_write(socket, username, "Failed to send username");
+    STATE = States::GET_DM_BODY;
+
 	// read message
-	std::cout << "Enter Private Message >> ";
-	std::cin.ignore();
+	// std::cout << "Enter Private Message >> ";
+	// std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
@@ -125,12 +129,11 @@ int send_private_message(int socket) {
 
 int send_broadcast_message(int socket) {
 
-    print_prompt();
     STATE = States::GET_BROADCAST_BODY;
 
 	char msg_buffer[BUFSIZ];
 	// read message
-	std::cin.ignore();
+	// std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 
 	// send message
@@ -145,7 +148,6 @@ int private_message(int socket_fd) {
 
 	strcpy(msg_buffer, "P");
 	_write(socket_fd, msg_buffer, "Failed to send command message P");
-
     STATE = States::WAIT_DM_READY;
 
 	return 1;
@@ -177,6 +179,8 @@ void print_prompt() {
             break;
         case States::GET_DM_BODY:
             printf("Enter Private Message >> ");
+            break;
+        case States::WAIT_BROADCAST_READY:
             break;
         case States::WAIT_DM_READY:
             break;
