@@ -79,7 +79,7 @@ void* handle_message(void* socket_fd) {
 				READY = 1; STATE = 0;
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
-				std::cout << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
+				std::cout << "USERS:\n" << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
 				send_private_message(socket);
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
