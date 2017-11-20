@@ -176,6 +176,8 @@ void *connection_handler(void *socket_desc){
 					_write(it.second, client_message, "Failed to broadcast message");
 				}
 			}
+			strcpy(broadcast_mess, "0C");
+			_write(sock, broadcast_mess, "Failed to send final message to client");
         } else if (strcmp(client_message, "E") == 0) {
 			// remove client from online_users
 			for( auto it : online_users){
