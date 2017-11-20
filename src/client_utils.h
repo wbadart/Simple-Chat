@@ -22,6 +22,9 @@
 #include <string>
 #include "utils.h"
 
+#define CONTROL_CHAR1(s) (s[0])
+#define CONTROL_CHAR2(s) (s[1])
+
 extern int ACTIVE;
 extern int READY;
 extern int STATE;
