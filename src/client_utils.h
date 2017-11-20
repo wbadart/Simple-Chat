@@ -34,6 +34,7 @@ enum class States {
     GET_DM_USERNAME,
     GET_DM_BODY,
     WAIT_DM_READY,
+    WAIT_BROADCAST_READY,
 };
 
 extern int ACTIVE;

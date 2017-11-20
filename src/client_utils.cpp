@@ -86,7 +86,7 @@ void* handle_message(void* socket_fd) {
 				print_prompt();
 				READY = 1; STATE = States::CMD_CHOICE;
 
-			} else if (CONTROL_CHAR2(msg_buffer) == '1') {	
+			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
                 // private exchange
 				std::cout << "USERS:\n" << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
                 STATE = States::GET_DM_BODY;
@@ -117,15 +117,16 @@ int send_private_message(int socket) {
 	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
-   
+
     STATE = States::CMD_CHOICE;
 
 	return 1;
 }
 
 int send_broadcast_message(int socket) {
-    
+
     print_prompt();
+    STATE = States::GET_BROADCAST_BODY;
 
 	char msg_buffer[BUFSIZ];
 	// read message
@@ -155,7 +156,7 @@ int broadcast_message(int socket_fd) {
 
 	strcpy(msg_buffer, "B");
 	_write(socket_fd, msg_buffer, "Failed to send command message B");
-    STATE = States::GET_BROADCAST_BODY;
+    STATE = States::WAIT_BROADCAST_READY;
 
 	return 1;
 }
