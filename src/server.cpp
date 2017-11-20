@@ -26,12 +26,17 @@
 #define MAX_THREADS 10
 
 std::map<char*, int> online_users;
+UserDatabase db("./users.db");
+
 
 // the thread function
 void *connection_handler(void *);
 
 int main(int argc, char *argv[]) {
-    UserDatabase db("./users.db");
+    if(argc < 2) {
+        puts("Missing argument PORT.");
+        exit(1);
+    }
 
     int socket_desc, client_socket, c;
     struct sockaddr_in server, client;
@@ -71,36 +76,34 @@ int main(int argc, char *argv[]) {
         char client_usrname[BUFSIZ];
         _read(client_socket, client_usrname, "Failed to get username");
 
-		// add user to online_users
-		online_users[client_usrname] = client_socket;
-        
         char client_pass[BUFSIZ];
         std::string res = db.query(client_usrname);
         if(strcmp(res.c_str(), "") != 0){
-        	// send response of Old/New
-        	_write(client_socket, "Old", "Failed to send response");
-        	// get password
-        	_read(client_socket, client_pass, "Failed to get password");
-            while(!db.login(client_usrname, client_pass)){
-	        	_write(client_socket, "Fail", "Failed to send response");
+            // send response of Old/New
+            _write(client_socket, "Old", "Failed to send response");
+            // get password
+            _read(client_socket, client_pass, "Failed to get password");
+            while(!db.login(client_usrname, client_pass, client_socket)){
+                _write(client_socket, "Fail", "Failed to send response");
                 printf("wrong password");
                 _read(client_socket, client_pass, "Failed to get password");
             }
             // login successful
-        	_write(client_socket, "Success", "Failed to send response");
+            _write(client_socket, "Success", "Failed to send response");
             printf("returning user signed in\n");
         } else {
-        	_write(client_socket, "New", "Failed to send response");
-        	_read(client_socket, client_pass, "Failed to get new password");
-	        if(db.add_user(client_usrname, client_pass)){
+            _write(client_socket, "New", "Failed to send response");
+            _read(client_socket, client_pass, "Failed to get new password");
+            if(db.add_user(client_usrname, client_pass)){
                 printf("user created and signed in");
                 _write(client_socket, "Success", "Failed to send success message");
+                db.login(client_usrname, client_pass, client_socket);
             } else {
                 perror("add_user failed");
                 return 1;
             }
         }
-        
+
 
         if( pthread_create( &thread_id, NULL, connection_handler, (void*) &client_socket) < 0){
             perror("could not create thread");
@@ -129,69 +132,75 @@ void *connection_handler(void *socket_desc){
     char message[BUFSIZ], client_message[BUFSIZ];
 
     // Receive a message from client
-    while( _read(sock, client_message, "Failed to read from client") > 0) {         
+    while( _read(sock, client_message, "Failed to read from client") > 0) {
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
-	
-        	// send back live users (from db class)
-			for( auto it: online_users){
-				strcat(message,it.first);
-        strcat(message,", ");
-			}
+            // end message with 1C
+			strcat(message, "C1");
+
+            // send back live users (from db class)
+            for(const auto& it: db.client_sockets()) {
+                strcat(message, it.first.c_str());
+                std::cout << it.first << std::endl;
+            }
+
 			printf("users: %s\n", message);
-
-			// end message with 1C
-			strcat(message, "1C");			
-
+		
 			_write(sock, message, "write back live users to client failed");
+            printf("users: %s\n", message);
 
-			// read username from client
-			_read(sock, client_message, "Failed to read username from client");
-			int rec_sock = online_users[client_message];
+
+            // read username from client
+            _read(sock, client_message, "Failed to read username from client");
+            int rec_sock = db.client_sockets().at(client_message);
 
 			// read message from client
 			_read(sock, client_message, "Failed to read message from client");
-
 			printf("%d %d ", rec_sock, sock);
-			// send message to correct socket
-			strcat(client_message, "D");
-			_write(rec_sock, client_message, "Failed to send private message");
 
-			strcpy(client_message, "0C");
+			// send message to correct socket
+			char enc_client_message[BUFSIZ];
+            strcpy(enc_client_message,"D");
+            strcat(enc_client_message, client_message);
+
+			_write(rec_sock, enc_client_message, "Failed to send private message");
+
+			strcpy(client_message, "C0");
 			_write(rec_sock, client_message, "Failed to confirm message");
-			
+
         } else if (strcmp(client_message, "B") == 0) {
-			printf("BROADCAST\n");
-	
-			// send back C2 code	
+            printf("BROADCAST\n");
+
+			// send back C2 code
 			char broadcast_mess[BUFSIZ];
-			strcpy(broadcast_mess, "2C");
+			strcpy(broadcast_mess, "C2");
 			_write(sock, broadcast_mess, "Failed to write back to client");
-	
-			// read message from client
-        	_read(sock, client_message, "Failed to receive broadcast message from client");
+
+            // read message from client
+            _read(sock, client_message, "Failed to receive broadcast message from client");
 
 			// send message to all other clients
-			strcat(client_message, "D");
-			for( auto it: online_users){
-				if( it.second != sock){
-					_write(it.second, client_message, "Failed to broadcast message");
-				}
-			}
-			strcpy(broadcast_mess, "0C");
-			_write(sock, broadcast_mess, "Failed to send final message to client");
-        } else if (strcmp(client_message, "E") == 0) {
-			// remove client from online_users
-			for( auto it : online_users){
-				if( it.second == sock){
-					online_users.erase(it.first);
-				}
-			}
+			char enc_client_message[BUFSIZ];
+            strcpy(enc_client_message,"D");
+            strcat(enc_client_message, client_message);
 
-    		puts("Client disconnected");
-			return 0;
-		}
+            for(const auto& it: db.client_sockets())
+                if(it.second != sock)
+					_write(it.second, enc_client_message, "Failed to broadcast message");
+
+			strcpy(broadcast_mess, "C0");
+			_write(sock, broadcast_mess, "Failed to send final message to client");
+
+        } else if (strcmp(client_message, "E") == 0) {
+            // remove client from online_users
+            for(const auto& it : db.client_sockets())
+                if( it.second == sock)
+                    db.logout(it.first);
+
+            puts("Client disconnected");
+            return 0;
+        }
         // write(sock, client_message, strlen(client_message));
     }
 

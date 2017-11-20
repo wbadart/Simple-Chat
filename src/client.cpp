@@ -16,6 +16,7 @@
 
 int READY = 1;
 int ACTIVE = 1;
+int STATE = 0;
 
 int main(int argc, char *argv[]) {
 	// check for correct number of args
@@ -77,11 +78,11 @@ int main(int argc, char *argv[]) {
 			std::cin >> cmd;
 			if (strcmp(cmd, "P") == 0) {
 				// pause reading from stdin
-				READY = 0;
+				READY = 0; STATE = 1;
 				private_message(socket_fd);
 			} else if (strcmp(cmd, "B") == 0) {
 				// pause reading from stdin
-				READY = 0;
+				READY = 0; STATE = 2;
 				broadcast_message(socket_fd);
 			} else if (strcmp(cmd, "E") == 0) {
 				// shut down thread

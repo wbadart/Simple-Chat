@@ -14,7 +14,6 @@
 
 #include <fstream>  // std::fstream
 #include <map>      // std::map
-#include <set>      // std::set
 #include <string>   // std::string, std::getline
 
 
@@ -35,10 +34,15 @@ class UserDatabase {
 
     // Authenticate user and record online status
     bool login(
-        const std::string& username, const std::string& password);
+        const std::string& username,
+        const std::string& password,
+        const int client_socket_fd);
 
     // Take a user offline
     void logout(const std::string& username);
+
+    // Provide the mapping of online users to socket descriptors
+    const std::map<std::string, int>& client_sockets() const;
 
   private:
     // Report whether the provided credentials match DB
@@ -55,11 +59,11 @@ class UserDatabase {
     std::string m_path;
 
     // Filestream object of data file
-    std::fstream* m_datafs;
+    std::ofstream* m_datafs;
 
     // Cache query results (map usernames to User)
     std::map<std::string, std::string> m_cache;
 
-    // Store all currently authenticated users
-    std::set<std::string> m_online;
+    // Store all currently authenticated users and their sock fd's
+    std::map<std::string, int> m_online;
 };

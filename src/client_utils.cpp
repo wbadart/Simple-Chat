@@ -15,7 +15,7 @@
 
 int login(int socket_fd, char* username) {
 	char msg_buffer[BUFSIZ];
-		
+
 	// send server username
 	_write(socket_fd, username, "Failed to send username");
 
@@ -46,7 +46,7 @@ int login(int socket_fd, char* username) {
 			std::cout << "Incorrect Password: Please Enter Again >> ";
 			std::cin >> password;
 			// send password
-			_write(socket_fd, "Failed to login", password);
+			_write(socket_fd, password, "Failed to login");
 			// wait for confirmation fo password
 			_read(socket_fd, msg_buffer, "Could not read response from login");
 			if (strcmp(msg_buffer, "Success") == 0) return 1;
@@ -59,29 +59,30 @@ int login(int socket_fd, char* username) {
 void* handle_message(void* socket_fd) {
 	char msg_buffer[BUFSIZ];
 	int socket = *(int*)socket_fd;
-	int last_char;
 
 	while (ACTIVE) {
 		_read(socket, msg_buffer, "Failed to listen for messages");
-		last_char = strlen(msg_buffer) - 1;
+		if (strlen(msg_buffer) <= 0) break;
 
 		// check what kind of message it is
-		if (msg_buffer[last_char] == 'D') { 
-			msg_buffer[last_char] = '\0';
-			std::cout << std::endl << "    ####### New Message: Message From: " 
-				<< msg_buffer << " ####### " << std::endl;
-			print_prompt();
-		} else if (msg_buffer[last_char] == 'C') {
-			if (msg_buffer[last_char-1] == '0') {
+		if (CONTROL_CHAR1(msg_buffer) == 'D') {
+			CONTROL_CHAR1(msg_buffer) = '\0';
+			std::cout << std::endl << "    ####### New Message: "
+				<< CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
+			if (STATE == 0) print_prompt();
+			else if (STATE == 1) send_private_message(socket);
+			else if (STATE == 2) send_broadcast_message(socket);
+		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
+			if (CONTROL_CHAR2(msg_buffer) == '0') {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
 				print_prompt();
-				READY = 1;
-			} else if (msg_buffer[last_char-1] == '1') {
+				READY = 1; STATE = 0;
+			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
-				msg_buffer[last_char-1] = '\0';
-				send_private_message(msg_buffer, socket);
-			} else if (msg_buffer[last_char-1] == '2') {
+				std::cout << msg_buffer << std::endl;
+				send_private_message(socket);
+			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
 				send_broadcast_message(socket);
 			}
@@ -90,12 +91,10 @@ void* handle_message(void* socket_fd) {
 	return 0;
 }
 
-int send_private_message(char users[BUFSIZ], int socket) {
+int send_private_message(int socket) {
 	char msg_buffer[BUFSIZ];
 	char username[BUFSIZ];
-	// print online users
-	std::cout << users << std::endl;
-
+	
 	// read username
 	std::cout << "Enter Username >> ";
 	std::cin >> username;
@@ -126,7 +125,6 @@ int send_broadcast_message(int socket) {
 	return 1;
 }
 
-
 int private_message(int socket_fd) {
 	char msg_buffer[BUFSIZ];
 
@@ -151,4 +149,5 @@ void print_prompt() {
 	printf("Enter E to exit\n");
 	printf(">> ");
 	fflush(stdout);
+	fflush(stdin);
 }
