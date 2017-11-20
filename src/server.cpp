@@ -152,30 +152,34 @@ void *connection_handler(void *socket_desc){
 			// read message from client
 			_read(sock, client_message, "Failed to read message from client");
 
+			printf("%d %d ", rec_sock, sock);
 			// send message to correct socket
+			strcat(client_message, "D");
 			_write(rec_sock, client_message, "Failed to send private message");
+
+			strcpy(client_message, "0C");
+			_write(rec_sock, client_message, "Failed to confirm message");
 			
         } else if (strcmp(client_message, "B") == 0) {
 			printf("BROADCAST\n");
 	
 			// send back C2 code	
-			puts("hi there");
 			char broadcast_mess[BUFSIZ];
 			strcpy(broadcast_mess, "2C");
-			printf("%s", broadcast_mess);
 			_write(sock, broadcast_mess, "Failed to write back to client");
 	
 			// read message from client
         	_read(sock, client_message, "Failed to receive broadcast message from client");
-        	printf("%s", client_message);
 
 			// send message to all other clients
-			// TODO: exclude sender
+			strcat(client_message, "D");
 			for( auto it: online_users){
 				if( it.second != sock){
 					_write(it.second, client_message, "Failed to broadcast message");
 				}
 			}
+			strcpy(broadcast_mess, "0C");
+			_write(sock, broadcast_mess, "Failed to send final message to client");
         } else if (strcmp(client_message, "E") == 0) {
 			// remove client from online_users
 			for( auto it : online_users){

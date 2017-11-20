@@ -76,30 +76,15 @@ void* handle_message(void* socket_fd) {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
 				print_prompt();
+				READY = 1;
 			} else if (msg_buffer[last_char-1] == '1') {
 				// private exchange
 				msg_buffer[last_char-1] = '\0';
 				send_private_message(msg_buffer, socket);
 			} else if (msg_buffer[last_char-1] == '2') {
 				// broadcast exchange
-				puts("i am here");
 				send_broadcast_message(socket);
-			} 
-			/*else if (msg_buffer[last_char-1] == '3') {
-				// login new user
-				send_password_new(socket);
-			} else if (msg_buffer[last_char-1] == '4') {
-				// login old user
-				send_password_old(socket);
-			} else if (msg_buffer[last_char-1] == '5') {
-				// login password success
-			} else if (msg_buffer[last_char-1] == '6') {
-				// login password fail
-				std::cout << "Incorrect Password" << std::endl <<
-					"Try Again ";
-				send_password_old(socket);
 			}
-			*/
 		}
 	}
 	return 0;
@@ -118,7 +103,9 @@ int send_private_message(char users[BUFSIZ], int socket) {
 	// send user
 	_write(socket, username, "Failed to send username");
 	// read message
-	fgets(msg_buffer, BUFSIZ, stdin);
+	std::cout << "Enter Private Message >> ";
+	std::cin.ignore();
+	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
 
@@ -126,11 +113,13 @@ int send_private_message(char users[BUFSIZ], int socket) {
 }
 
 int send_broadcast_message(int socket) {
-	puts("Enter Broadcast Message >> ");
+	printf("Enter Broadcast Message >> ");
 
 	char msg_buffer[BUFSIZ];
 	// read message
-	fgets(msg_buffer, BUFSIZ, stdin);
+	std::cin.ignore();
+	std::cin.getline(msg_buffer, BUFSIZ);
+
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
 
@@ -157,9 +146,9 @@ int broadcast_message(int socket_fd) {
 }
 
 void print_prompt() {
-	std::cout <<
-		"Enter P for a private message" << std::endl <<
-		"Enter B for a public message" << std::endl <<
-		"Enter E to exit" << std::endl <<
-		">> ";
+	printf("Enter P for a private message\n");
+	printf("Enter B for a broadcast message\n");
+	printf("Enter E to exit\n");
+	printf(">> ");
+	fflush(stdout);
 }
