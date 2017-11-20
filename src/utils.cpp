@@ -32,8 +32,8 @@ int _read(int socket_fd, char* message, char error_msg[BUFSIZ]) {
 int usage(int status) {
     std::cout
         << "usage: ./client HOST PORT USER\n"
-        << "    HOST    Name of the remote host running myftpd\n"
-        << "    PORT    Port on which myftpd is listening.\n"
+        << "    HOST    Name of the remote host running chat server.\n"
+        << "    PORT    Port on which chat server is listening.\n"
         << "    USER    The name you want to be identified by.\n";
     return status;
 }
