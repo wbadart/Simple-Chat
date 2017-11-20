@@ -67,31 +67,35 @@ void* handle_message(void* socket_fd) {
 
 		// check what kind of message it is
 		if (CONTROL_CHAR1(msg_buffer) == 'D') {
+
 			std::cout << std::endl << "    ####### New Message: "
 				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
-			if (STATE == States::CMD_CHOICE){
-                printf("printing prompt\n");
-                print_prompt();
-                printf("got through it\n");
-            } else if (STATE == States::GET_BROADCAST_BODY) {
+            print_prompt();
+
+			if (STATE == States::GET_BROADCAST_BODY) {
                 send_broadcast_message(socket);
             } else if (STATE == States::WAIT_DM_READY) {
                 STATE = States::GET_DM_BODY;
             }
+
 		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
+
 			if (CONTROL_CHAR2(msg_buffer) == '0') {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
 				print_prompt();
 				READY = 1; STATE = States::CMD_CHOICE;
-			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
-				// private exchange
+
+			} else if (CONTROL_CHAR2(msg_buffer) == '1') {	
+                // private exchange
 				std::cout << "USERS:\n" << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
                 STATE = States::GET_DM_BODY;
+
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
 				send_broadcast_message(socket);
 			}
+
 		}
 	}
 	return 0;
@@ -113,12 +117,15 @@ int send_private_message(int socket) {
 	std::cin.getline(msg_buffer, BUFSIZ);
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
+   
+    STATE = States::CMD_CHOICE;
 
 	return 1;
 }
 
 int send_broadcast_message(int socket) {
-	printf("Enter Broadcast Message >> ");
+    
+    print_prompt();
 
 	char msg_buffer[BUFSIZ];
 	// read message
@@ -127,6 +134,7 @@ int send_broadcast_message(int socket) {
 
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
+    STATE = States::CMD_CHOICE;
 
 	return 1;
 }
@@ -147,16 +155,17 @@ int broadcast_message(int socket_fd) {
 
 	strcpy(msg_buffer, "B");
 	_write(socket_fd, msg_buffer, "Failed to send command message B");
+    STATE = States::GET_BROADCAST_BODY;
 
 	return 1;
 }
 
 void print_prompt() {
-	printf("Enter P for a private message\n");
-	printf("Enter B for a broadcast message\n");
-	printf("Enter E to exit\n");
-    switch(STATE) {
+	    switch(STATE) {
         case States::CMD_CHOICE:
+            printf("Enter P for a private message\n");
+	        printf("Enter B for a broadcast message\n");
+	        printf("Enter E to exit\n");
             printf(">> ");
             break;
         case States::GET_BROADCAST_BODY:
