@@ -136,19 +136,20 @@ void *connection_handler(void *socket_desc){
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
-        	
+
             // end message with 1C
 			strcat(message, "C1");
 
             // send back live users (from db class)
             for(const auto& it: db.client_sockets()) {
+                if(it.second == sock) continue;
                 strcat(message, it.first.c_str());
                 strcat(message, "\n");
                 std::cout << it.first << std::endl;
             }
 
 			printf("users: %s\n", message);
-		
+
 			_write(sock, message, "write back live users to client failed");
             printf("users: %s\n", message);
 
