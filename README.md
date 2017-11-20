@@ -30,8 +30,8 @@ And the client should be run as follows:
 ```
 $ ./bin/client --help
 usage: client HOST PORT <username>
-    HOST        Name of the remote host running myftpd
-    PORT        Port on which myftpd is listening.
+    HOST        Name of the remote host running chat server
+    PORT        Port on which chat server is listening.
     <username>  username of existing or new user.
 ```
 
