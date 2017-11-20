@@ -25,6 +25,9 @@
 #define CONTROL_CHAR1(s) (s[0])
 #define CONTROL_CHAR2(s) (s[1])
 
+#define STRIP_CONTROL_CHAR1(s) (s+1)
+#define STRIP_CONTROL_CHAR2(s) (s+2)
+
 extern int ACTIVE;
 extern int READY;
 extern int STATE;
