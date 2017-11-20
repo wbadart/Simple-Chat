@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include "client_utils.h"
 
+int READY = 1;
 int ACTIVE = 1;
 
 int main(int argc, char *argv[]) {
@@ -64,7 +65,7 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "Welcome " << argv[3] << "!" << std::endl;
 	print_prompt();
-	int READY = 1;
+
 	// start listening thread
 	pthread_t thread;
 	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);	
@@ -75,12 +76,15 @@ int main(int argc, char *argv[]) {
 		if (READY) {
 			std::cin >> cmd;
 			if (strcmp(cmd, "P") == 0) {
+				// pause reading from stdin
 				READY = 0;
 				private_message(socket_fd);
 			} else if (strcmp(cmd, "B") == 0) {
+				// pause reading from stdin
 				READY = 0;
 				broadcast_message(socket_fd);
 			} else if (strcmp(cmd, "E") == 0) {
+				// shut down thread
 				ACTIVE = 0;
 				_write(socket_fd, "E", "Failed to send exit command");
 				pthread_join(thread, NULL);

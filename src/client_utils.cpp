@@ -76,6 +76,7 @@ void* handle_message(void* socket_fd) {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
 				print_prompt();
+				READY = 1;
 			} else if (msg_buffer[last_char-1] == '1') {
 				// private exchange
 				msg_buffer[last_char-1] = '\0';
@@ -106,8 +107,6 @@ int send_private_message(char users[BUFSIZ], int socket) {
 	// send message
 	_write(socket, msg_buffer, "Failed to send private message");
 
-	int READY = 1;
-
 	return 1;
 }
 
@@ -119,11 +118,9 @@ int send_broadcast_message(int socket) {
 	std::cin.ignore();
 	std::cin.getline(msg_buffer, BUFSIZ);
 
-	printf("%s", msg_buffer);
 	// send message
 	_write(socket, msg_buffer, "Failed to send broadcast message");
 
-	int READY = 1;
 	return 1;
 }
 
@@ -147,9 +144,14 @@ int broadcast_message(int socket_fd) {
 }
 
 void print_prompt() {
-	std::cout <<
-		"Enter P for a private message" << std::endl <<
-		"Enter B for a public message" << std::endl <<
-		"Enter E to exit" << std::endl <<
-		">> ";
+	// std::cout <<
+	// 	"Enter P for a private message" << std::endl <<
+	// 	"Enter B for a public message" << std::endl <<
+	// 	"Enter E to exit" << std::endl <<
+	// 	">> ";
+	printf("Enter P for a private message\n");
+	printf("Enter B for a broadcast message\n");
+	printf("Enter E to exit\n");
+	printf(">> ");
+	fflush(stdout);
 }
