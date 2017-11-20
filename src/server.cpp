@@ -168,7 +168,9 @@ void *connection_handler(void *socket_desc){
 
 			// send message to all other clients
 			for( auto it: online_users){
-				_write(it.second, client_message, "Failed to broadcast message");
+				if( it.second != sock){
+					_write(it.second, client_message, "Failed to broadcast message");
+				}
 			}
         } else if (strcmp(client_message, "E") == 0) {
 			// remove client from online_users
