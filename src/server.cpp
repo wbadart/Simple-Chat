@@ -143,6 +143,7 @@ void *connection_handler(void *socket_desc){
             // send back live users (from db class)
             for(const auto& it: db.client_sockets()) {
                 strcat(message, it.first.c_str());
+                strcat(message, "\n");
                 std::cout << it.first << std::endl;
             }
 
