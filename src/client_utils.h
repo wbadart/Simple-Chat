@@ -24,12 +24,13 @@
 
 extern int ACTIVE;
 extern int READY;
+extern int STATE;
 
 int login(int socket_fd, char* user_name);
 
 void* handle_message(void*);
 
-int send_private_message(char users[BUFSIZ], int);
+int send_private_message(int);
 
 int send_broadcast_message(int);
 
