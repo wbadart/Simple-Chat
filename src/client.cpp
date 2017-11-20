@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
 	bzero((char*)&sin, sizeof(sin));
 	sin.sin_family = AF_INET;
-	bcopy((char *)hp->h_addr, 
+	bcopy((char *)hp->h_addr,
 	  (char *)&sin.sin_addr.s_addr, hp->h_length);
 	sin.sin_port = htons(atoi(argv[2]));
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[]) {
 
 	// start listening thread
 	pthread_t thread;
-	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);	
+	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);
 
 	char cmd[BUFSIZ];
 
@@ -80,6 +80,8 @@ int main(int argc, char *argv[]) {
 				// pause reading from stdin
 				READY = 0; STATE = 1;
 				private_message(socket_fd);
+                while(STATE == 3);
+				send_private_message(socket_fd);
 			} else if (strcmp(cmd, "B") == 0) {
 				// pause reading from stdin
 				READY = 0; STATE = 2;

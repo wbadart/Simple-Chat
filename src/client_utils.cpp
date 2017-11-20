@@ -69,7 +69,6 @@ void* handle_message(void* socket_fd) {
 			std::cout << std::endl << "    ####### New Message: "
 				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
 			if (STATE == 0) print_prompt();
-			else if (STATE == 1) send_private_message(socket);
 			else if (STATE == 2) send_broadcast_message(socket);
 		} else if (CONTROL_CHAR1(msg_buffer) == 'C') {
 			if (CONTROL_CHAR2(msg_buffer) == '0') {
@@ -80,7 +79,7 @@ void* handle_message(void* socket_fd) {
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
 				std::cout << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
-				send_private_message(socket);
+                STATE = 0;
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange
 				send_broadcast_message(socket);
@@ -129,6 +128,8 @@ int private_message(int socket_fd) {
 
 	strcpy(msg_buffer, "P");
 	_write(socket_fd, msg_buffer, "Failed to send command message P");
+
+    STATE = 3;
 
 	return 1;
 }
