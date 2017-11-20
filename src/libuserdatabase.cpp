@@ -14,7 +14,7 @@
 #include <userdatabase.h>
 
 
-UserDatabase::UserDatabase(const std::string& path)
+UserDatabase::UserDatabase(std::string& path)
         : m_path(path), m_datafs(std::fstream(path)) {
     for(std::string user; std::getline(m_datafs, user);) {
         // Skip comments (e.g. "DO NOT EDIT" remark) and blanks in data file

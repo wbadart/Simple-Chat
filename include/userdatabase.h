@@ -21,7 +21,7 @@
 class UserDatabase {
   public:
     // Default constructor with path to data file
-    UserDatabase(const std::string& path="./users.db");
+    UserDatabase(std::string& path);
 
     // Default destructor (mainly just closes db file stream)
     ~UserDatabase();
