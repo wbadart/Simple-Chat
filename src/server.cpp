@@ -31,6 +31,11 @@ std::map<char*, int> online_users;
 void *connection_handler(void *);
 
 int main(int argc, char *argv[]) {
+    if(argc < 2) {
+        puts("Missing argument PORT.");
+        exit(1);
+    }
+
     UserDatabase db("./users.db");
 
     int socket_desc, client_socket, c;
@@ -73,7 +78,7 @@ int main(int argc, char *argv[]) {
 
 		// add user to online_users
 		online_users[client_usrname] = client_socket;
-        
+
         char client_pass[BUFSIZ];
         std::string res = db.query(client_usrname);
         if(strcmp(res.c_str(), "") != 0){
@@ -100,7 +105,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         }
-        
+
 
         if( pthread_create( &thread_id, NULL, connection_handler, (void*) &client_socket) < 0){
             perror("could not create thread");
@@ -129,11 +134,11 @@ void *connection_handler(void *socket_desc){
     char message[BUFSIZ], client_message[BUFSIZ];
 
     // Receive a message from client
-    while( _read(sock, client_message, "Failed to read from client") > 0) {         
+    while( _read(sock, client_message, "Failed to read from client") > 0) {
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
-	
+
         	// send back live users (from db class)
 			for( auto it: online_users){
 				strcat(message,it.first);
@@ -141,7 +146,7 @@ void *connection_handler(void *socket_desc){
 			printf("users: %s\n", message);
 
 			// end message with 1C
-			strcat(message, "1C");			
+			strcat(message, "1C");
 
 			_write(sock, message, "write back live users to client failed");
 
@@ -159,15 +164,15 @@ void *connection_handler(void *socket_desc){
 
 			strcpy(client_message, "0C");
 			_write(rec_sock, client_message, "Failed to confirm message");
-			
+
         } else if (strcmp(client_message, "B") == 0) {
 			printf("BROADCAST\n");
-	
-			// send back C2 code	
+
+			// send back C2 code
 			char broadcast_mess[BUFSIZ];
 			strcpy(broadcast_mess, "2C");
 			_write(sock, broadcast_mess, "Failed to write back to client");
-	
+
 			// read message from client
         	_read(sock, client_message, "Failed to receive broadcast message from client");
 
