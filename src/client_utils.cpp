@@ -97,7 +97,7 @@ void* handle_message(void* socket_fd) {
 int send_private_message(int socket) {
 	char msg_buffer[BUFSIZ];
 	char username[BUFSIZ];
-
+	
 	// read username
 	std::cout << "Enter Username >> ";
 	std::cin >> username;
