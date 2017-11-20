@@ -32,7 +32,9 @@ enum class States {
     CMD_CHOICE,
     GET_BROADCAST_BODY,
     START_DM,
+    START_BROADCAST,
     GET_DM_USERNAME,
+    WAIT_FOR_USERS,
     GET_DM_BODY,
     WAIT_DM_READY,
     WAIT_BROADCAST_READY,
@@ -46,12 +48,14 @@ int login(int socket_fd, char* user_name);
 
 void* handle_message(void*);
 
-int send_private_message(int);
+void get_dm_username(int);
 
-int send_broadcast_message(int);
+void get_dm_body(int);
 
-int private_message(int);
+void get_broadcast_body(int);
 
-int broadcast_message(int);
+int start_private_message(int);
+
+int start_broadcast_message(int);
 
 void print_prompt();
