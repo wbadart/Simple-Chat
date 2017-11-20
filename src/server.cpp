@@ -135,16 +135,16 @@ void *connection_handler(void *socket_desc){
         std::cout << client_message << std::endl;
         if (strcmp(client_message, "P") == 0) {
 			printf("PRIVATE\n");
+        	
+            // end message with 1C
+			strcat(message, "C1");
 
         	// send back live users (from db class)
             for(const auto& it: db.client_sockets())
                 strcat(message, it.first.c_str());
 
 			printf("users: %s\n", message);
-
-			// end message with 1C
-			strcat(message, "1C");
-
+		
 			_write(sock, message, "write back live users to client failed");
 
 			// read username from client
@@ -153,13 +153,16 @@ void *connection_handler(void *socket_desc){
 
 			// read message from client
 			_read(sock, client_message, "Failed to read message from client");
-
 			printf("%d %d ", rec_sock, sock);
-			// send message to correct socket
-			strcat(client_message, "D");
-			_write(rec_sock, client_message, "Failed to send private message");
 
-			strcpy(client_message, "0C");
+			// send message to correct socket
+			char enc_client_message[BUFSIZ];
+            strcpy(enc_client_message,"D");
+            strcat(enc_client_message, client_message);
+
+			_write(rec_sock, enc_client_message, "Failed to send private message");
+
+			strcpy(client_message, "C0");
 			_write(rec_sock, client_message, "Failed to confirm message");
 
         } else if (strcmp(client_message, "B") == 0) {
@@ -167,19 +170,22 @@ void *connection_handler(void *socket_desc){
 
 			// send back C2 code
 			char broadcast_mess[BUFSIZ];
-			strcpy(broadcast_mess, "2C");
+			strcpy(broadcast_mess, "C2");
 			_write(sock, broadcast_mess, "Failed to write back to client");
 
 			// read message from client
         	_read(sock, client_message, "Failed to receive broadcast message from client");
 
 			// send message to all other clients
-			strcat(client_message, "D");
+			char enc_client_message[BUFSIZ];
+            strcpy(enc_client_message,"D");
+            strcat(enc_client_message, client_message);
+
             for(const auto& it: db.client_sockets())
                 if(it.second != sock)
-					_write(it.second, client_message, "Failed to broadcast message");
+					_write(it.second, enc_client_message, "Failed to broadcast message");
 
-			strcpy(broadcast_mess, "0C");
+			strcpy(broadcast_mess, "C0");
 			_write(sock, broadcast_mess, "Failed to send final message to client");
 
         } else if (strcmp(client_message, "E") == 0) {
