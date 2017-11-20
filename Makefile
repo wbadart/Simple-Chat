@@ -14,7 +14,7 @@ PROGS = bin/server bin/client
 LIBS  = lib/libuserdatabase.a
 
 CXX       = g++
-CXX_FLAGS = -Wall -ggdb -g -O0 -std=gnu++11 -I./include
+CXX_FLAGS = -Wall -ggdb -g -O0 -std=gnu++11 -I./include -Wno-write-strings
 LD        = g++
 LD_FLAGS  = -L./lib -luserdatabase -lpthread
 AR        = ar
