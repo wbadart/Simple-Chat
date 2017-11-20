@@ -86,7 +86,7 @@ void* handle_message(void* socket_fd) {
 				READY = 1; STATE = States::CMD_CHOICE;
 			} else if (CONTROL_CHAR2(msg_buffer) == '1') {
 				// private exchange
-				std::cout << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
+				std::cout << "USERS:\n" << STRIP_CONTROL_CHAR2(msg_buffer) << std::endl;
                 STATE = States::GET_DM_BODY;
 			} else if (CONTROL_CHAR2(msg_buffer) == '2') {
 				// broadcast exchange

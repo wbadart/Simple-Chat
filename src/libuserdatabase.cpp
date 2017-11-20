@@ -15,7 +15,7 @@
 
 
 UserDatabase::UserDatabase(const std::string& path)
-        : m_path(path), m_datafs(new std::ofstream(path.c_str())) {
+        : m_path(path), m_datafs(new std::ofstream(path.c_str(), std::ofstream::app)) {
     std::ifstream current_data(path.c_str());
     for(std::string user; std::getline(current_data, user);) {
         // Skip comments (e.g. "DO NOT EDIT" remark) and blanks in data file
