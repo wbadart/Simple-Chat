@@ -97,6 +97,7 @@ int main(int argc, char *argv[]) {
 	        if(db.add_user(client_usrname, client_pass)){
                 printf("user created and signed in");
                 _write(client_socket, "Success", "Failed to send success message");
+                db.login(client_usrname, client_pass, client_socket);
             } else {
                 perror("add_user failed");
                 return 1;
@@ -137,8 +138,10 @@ void *connection_handler(void *socket_desc){
 			printf("PRIVATE\n");
 
         	// send back live users (from db class)
-            for(const auto& it: db.client_sockets())
+            for(const auto& it: db.client_sockets()) {
                 strcat(message, it.first.c_str());
+                std::cout << it.first << std::endl;
+            }
 
 			printf("users: %s\n", message);
 
