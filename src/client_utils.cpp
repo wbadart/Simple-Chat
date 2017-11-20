@@ -66,9 +66,8 @@ void* handle_message(void* socket_fd) {
 
 		// check what kind of message it is
 		if (CONTROL_CHAR1(msg_buffer) == 'D') {
-			CONTROL_CHAR1(msg_buffer) = '\0';
 			std::cout << std::endl << "    ####### New Message: "
-				<< CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
+				<< STRIP_CONTROL_CHAR1(msg_buffer) << " ####### " << std::endl;
 			if (STATE == 0) print_prompt();
 			else if (STATE == 1) send_private_message(socket);
 			else if (STATE == 2) send_broadcast_message(socket);
