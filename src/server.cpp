@@ -153,6 +153,7 @@ void *connection_handler(void *socket_desc){
 			_read(sock, client_message, "Failed to read message from client");
 
 			// send message to correct socket
+			strcat(client_message, "D");
 			_write(rec_sock, client_message, "Failed to send private message");
 			
         } else if (strcmp(client_message, "B") == 0) {
@@ -169,6 +170,7 @@ void *connection_handler(void *socket_desc){
         	fflush(stdout);
 
 			// send message to all other clients
+			strcat(client_message, "D");
 			for( auto it: online_users){
 				if( it.second != sock){
 					_write(it.second, client_message, "Failed to broadcast message");
