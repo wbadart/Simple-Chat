@@ -14,6 +14,8 @@
 #include <pthread.h>
 #include "client_utils.h"
 
+int ACTIVE = 1;
+
 int main(int argc, char *argv[]) {
 	// check for correct number of args
 	if (argc != 4) {
@@ -54,12 +56,14 @@ int main(int argc, char *argv[]) {
 		error(msg);
 	}
 
+	// sends server the username
 	if (login(socket_fd, argv[3]) == 0) {
 		char msg[] = "Failed to login\n";
 		error(msg);
 	}
-	std::cout << "Welcome " << argv[3] << "!" << std::endl;
 
+	std::cout << "Welcome " << argv[3] << "!" << std::endl;
+	print_prompt();
 	// start listening thread
 	pthread_t thread;
 	int rc = pthread_create(&thread, NULL, handle_message, (void*)&socket_fd);	
@@ -67,7 +71,6 @@ int main(int argc, char *argv[]) {
 	char cmd[BUFSIZ];
 
 	while (true) {
-		print_prompt();
 		std::cin >> cmd;
 
 		if (strcmp(cmd, "P") == 0) {
@@ -75,6 +78,7 @@ int main(int argc, char *argv[]) {
 		} else if (strcmp(cmd, "B") == 0) {
 			broadcast_message(socket_fd);
 		} else if (strcmp(cmd, "E") == 0) {
+			ACTIVE = 0;
 			_write(socket_fd, "E", "Failed to send exit command");
 			pthread_join(thread, NULL);
 			break;

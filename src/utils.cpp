@@ -9,6 +9,7 @@
 
 
 int _write(int socket_fd, char* message, char error_msg[]) {
+    printf("SENT: %s\n", message);
     int bytes = write(socket_fd, message, strlen(message));
 	if (bytes == -1) {
 		error(error_msg);
@@ -23,6 +24,7 @@ int _read(int socket_fd, char* message, char error_msg[BUFSIZ]) {
 		error(error_msg);
 	}
     message[bytes] = '\0';
+    printf("READ: %s\n", message);
     return bytes;
 }
 

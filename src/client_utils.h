@@ -22,6 +22,8 @@
 #include <string>
 #include "utils.h"
 
+extern int ACTIVE;
+
 int login(int socket_fd, char* user_name);
 
 void* handle_message(void*);
@@ -29,10 +31,6 @@ void* handle_message(void*);
 int send_private_message(char users[BUFSIZ], int);
 
 int send_broadcast_message(int);
-
-int send_password_new(int);
-
-int send_password_old(int);
 
 int private_message(int);
 

@@ -18,12 +18,11 @@ int login(int socket_fd, char* username) {
 		
 	// send server username
 	_write(socket_fd, username, "Failed to send username");
-	/*
+
 	// wait for confirmation
 	_read(socket_fd, msg_buffer, "Failed to receive confirmation");
 
 	char password[BUFSIZ];
-	std::cout << msg_buffer << std::endl;
 
 	if (strcmp(msg_buffer, "New") == 0) {
 		std::cout << "New User? Create Password >> ";
@@ -53,7 +52,7 @@ int login(int socket_fd, char* username) {
 			if (strcmp(msg_buffer, "Success") == 0) return 1;
 		}
 	}
-	*/
+
 	return 1;
 }
 
@@ -62,7 +61,7 @@ void* handle_message(void* socket_fd) {
 	int socket = *(int*)socket_fd;
 	int last_char;
 
-	while (true) {
+	while (ACTIVE) {
 		_read(socket, msg_buffer, "Failed to listen for messages");
 		last_char = strlen(msg_buffer) - 1;
 
@@ -76,14 +75,17 @@ void* handle_message(void* socket_fd) {
 			if (msg_buffer[last_char-1] == '0') {
 				// successful transaction message
 				std::cout << "Message Sent" << std::endl;
+				print_prompt();
 			} else if (msg_buffer[last_char-1] == '1') {
 				// private exchange
 				msg_buffer[last_char-1] = '\0';
 				send_private_message(msg_buffer, socket);
 			} else if (msg_buffer[last_char-1] == '2') {
 				// broadcast exchange
+				puts("i am here");
 				send_broadcast_message(socket);
-			} else if (msg_buffer[last_char-1] == '3') {
+			} 
+			/*else if (msg_buffer[last_char-1] == '3') {
 				// login new user
 				send_password_new(socket);
 			} else if (msg_buffer[last_char-1] == '4') {
@@ -97,31 +99,10 @@ void* handle_message(void* socket_fd) {
 					"Try Again ";
 				send_password_old(socket);
 			}
+			*/
 		}
 	}
 	return 0;
-}
-
-int send_password_new(int socket_fd) {
-	char password[BUFSIZ];
-
-	std::cout << "New User? Create Password >> ";
-	std::cin >> password;
-	// send password
-	_write(socket_fd, password, "Failed to login");
-
-	return 1;
-}
-
-int send_password_old(int socket_fd) {
-	char password[BUFSIZ];
-
-	std::cout << "Password >> ";
-	std::cin >> password;
-	// send password
-	_write(socket_fd, password, "Failed to login");
-
-	return 1;
 }
 
 int send_private_message(char users[BUFSIZ], int socket) {
@@ -145,8 +126,9 @@ int send_private_message(char users[BUFSIZ], int socket) {
 }
 
 int send_broadcast_message(int socket) {
-	char msg_buffer[BUFSIZ];
+	puts("Enter Broadcast Message >> ");
 
+	char msg_buffer[BUFSIZ];
 	// read message
 	fgets(msg_buffer, BUFSIZ, stdin);
 	// send message
