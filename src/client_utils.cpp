@@ -154,7 +154,25 @@ void print_prompt() {
 	printf("Enter P for a private message\n");
 	printf("Enter B for a broadcast message\n");
 	printf("Enter E to exit\n");
-	printf(">> ");
+    switch(STATE) {
+        case States::CMD_CHOICE:
+            printf(">> ");
+            break;
+        case States::GET_BROADCAST_BODY:
+            printf("Enter Broadcast Message >> ");
+            break;
+        case States::GET_DM_USERNAME:
+            printf("Enter Username >> ");
+            break;
+        case States::GET_DM_BODY:
+            printf("Enter Private Message >> ");
+            break;
+        case States::WAIT_DM_READY:
+            break;
+        default:
+            error("UNKNOWN STATE");
+
+    }
 	//fflush(stdout);
 	//fflush(stdin);
 }
